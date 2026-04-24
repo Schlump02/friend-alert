@@ -48,12 +48,8 @@ interface ContactDao {
 
     @Query(
         """
-    UPDATE contacts 
-    SET contact_name = :contactName, 
-        phone_number = :phoneNumber, 
-        photo_uri = :photoUri, 
-        notes = :notes
-    WHERE lookup_key = :lookupKey
+    INSERT OR REPLACE INTO contacts (lookup_key, contact_name, phone_number, photo_uri, notes) VALUES 
+    (:lookupKey, :contactName, :phoneNumber, :photoUri, :notes)
 """
     )
     fun updateContactFromDevice(

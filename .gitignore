@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+access_all_content*
+context.txt

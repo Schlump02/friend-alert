@@ -33,7 +33,7 @@
             android:layout_height="80dp"
             android:layout_marginStart="2dp"
             android:visibility="@{contact.photoUri == null || contact.photoUri.isEmpty() ? View.VISIBLE : View.INVISIBLE}"
-            app:cardBackgroundColor="#2196F3"
+            app:cardBackgroundColor="@color/accent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/overdueFlag"
             app:layout_constraintTop_toTopOf="parent"

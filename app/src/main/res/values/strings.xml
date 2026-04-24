@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Friend Alert</string>
+    <string name="app_name">Friend Alert 2.0</string>
     <string name="no_contact_date">Never contacted</string>
     <string name="request_contacts_permission">This app requires access to contacts to function. Please grant the permission.</string>
     <string name="ask_again">Ask Again</string>

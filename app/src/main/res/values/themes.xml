@@ -5,5 +5,10 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.FriendAlert" parent="Base.Theme.FriendAlert"></style>
+    <style name="Theme.FriendAlert" parent="Base.Theme.FriendAlert">
+
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
 </resources>

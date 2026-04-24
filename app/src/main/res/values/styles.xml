@@ -10,7 +10,7 @@
     </style>
 
     <style name="SearchTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/design_default_color_primary</item>
+        <item name="boxStrokeColor">@color/accent</item>
         <item name="hintTextColor">@color/gray</item>
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>
