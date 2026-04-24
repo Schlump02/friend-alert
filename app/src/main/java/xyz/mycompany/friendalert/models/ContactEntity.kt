@@ -30,6 +30,11 @@ data class ContactEntity(
             return contactFrequency!! - daysSinceLastContact.toInt()
         }
 
+    val isSoonOverdue: Boolean
+        get() {
+            return if (daysUntilNextContact != null) daysUntilNextContact!! < 8 else false
+        }
+
     val isOverdue: Boolean
         get() {
             return if (daysUntilNextContact != null) daysUntilNextContact!! < 0 else false

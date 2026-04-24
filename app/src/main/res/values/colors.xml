@@ -3,9 +3,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#808080</color>
+    <color name="red">#ec2c13</color>
+    <color name="yellow">#f2b618</color>
     <color name="toolbar_color">@color/primary</color>
 
     <color name="primary">#29335C</color>
-    <color name="secondary">#120023</color>
-    <color name="accent">#008DD5</color>
+    <color name="secondary">#FAFAFA</color>
+    <color name="accent">#4B96E0</color>
 </resources>
