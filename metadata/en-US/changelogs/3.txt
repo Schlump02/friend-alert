@@ -1,0 +1,2 @@
+- The contact notes are displayed when tapping on a contact
+- The synchronization with the Android contacts should now be more reliable

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="frequency_units">
+        <item>Days</item>
+        <item>Months</item>
+    </string-array>
+</resources>

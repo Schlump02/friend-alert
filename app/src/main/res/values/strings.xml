@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Friend Alert</string>
+    <string name="no_contact_date">Never contacted</string>
+    <string name="request_contacts_permission">This app requires access to contacts to function. Please grant the permission.</string>
+    <string name="ask_again">Ask Again</string>
+    <string name="denied_contacts_permission">This app requires access to contacts to function. You\'ve chosen to deny this permission permanently, please enable it from app settings.</string>
+    <string name="open_android_settings">Open Settings</string>
+    <string name="exit">Exit</string>
+    <string name="add_contact">Add contact</string>
+    <string name="days">Days</string>
+    <string name="weeks">Weeks</string>
+    <string name="months">Months</string>
+    <string name="years">Years</string>
+    <string name="save">Save</string>
+    <string name="never_contact">Never</string>
+</resources>

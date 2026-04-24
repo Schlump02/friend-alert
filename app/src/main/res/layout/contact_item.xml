@@ -1,0 +1,113 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contact"
+            type="xyz.mycompany.friendalert.models.ContactEntity" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <View
+            android:id="@+id/overdueFlag"
+            android:layout_width="8dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_red_light"
+            android:visibility="@{contact.isOverdue ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/contactInitialsCard"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="2dp"
+            android:visibility="@{contact.photoUri == null || contact.photoUri.isEmpty() ? View.VISIBLE : View.INVISIBLE}"
+            app:cardBackgroundColor="#2196F3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/overdueFlag"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView">
+
+            <TextView
+                android:id="@+id/contactInitials"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@{contact.initials}"
+                android:textColor="@android:color/white"
+                android:textSize="32sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/contactImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@{`Profile picture of ` + contact.contactName}"
+            android:scaleType="centerCrop"
+            android:visibility="@{contact.photoUri != null ? View.VISIBLE : View.INVISIBLE}"
+            app:imageUri="@{contact.photoUri}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/contactInitialsCard"
+            app:layout_constraintTop_toTopOf="parent"
+            app:placeholder="@{@drawable/ic_person_24}"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircleImageView"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/contactName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@{contact.contactName}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            app:layout_constraintStart_toEndOf="@id/contactImage"
+            app:layout_constraintTop_toTopOf="@id/contactImage"
+            tools:text="John Doe" />
+
+        <TextView
+            android:id="@+id/contactNumber"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{contact.phoneNumber}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            app:layout_constraintStart_toStartOf="@id/contactName"
+            app:layout_constraintTop_toBottomOf="@id/contactName"
+            tools:text="(123) 456-7890" />
+
+        <TextView
+            android:id="@+id/lastContactedDate"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:formattedDate="@{contact.lastContactedTime}"
+            app:layout_constraintStart_toStartOf="@id/contactNumber"
+            app:layout_constraintTop_toBottomOf="@id/contactNumber"
+            tools:text="Last contacted: Jan 1, 2023" />
+
+        <TextView
+            android:id="@+id/daysRemainingTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toStartOf="@id/lastContactedDate"
+            app:layout_constraintTop_toBottomOf="@id/lastContactedDate"
+            tools:text="5 days remaining" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
