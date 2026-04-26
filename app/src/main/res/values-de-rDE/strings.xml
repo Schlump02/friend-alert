@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Friend Alert 2.0</string>
+    <string name="app_name">Kumpelradar</string>
     <string name="no_contact_date">nie kontaktiert</string>
     <string name="request_contacts_permission">Kontaktzugriff benötigt</string>
     <string name="ask_again">erneut fragen</string>
@@ -15,4 +15,5 @@
     <string name="save">Speichern</string>
     <string name="never_contact">nie</string>
     <string name="note">Notiz</string>
+    <string name="search">Durchsuchen</string>
 </resources>

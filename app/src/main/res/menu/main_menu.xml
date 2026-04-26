@@ -6,6 +6,5 @@
         android:icon="@drawable/ic_settings_24"
         android:orderInCategory="100"
         android:title="Settings"
-        android:backgroundTint="@android:color/white"
         app:showAsAction="always" />
 </menu>
