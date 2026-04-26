@@ -28,7 +28,7 @@ class ContactSettings : AppCompatActivity() {
     private lateinit var binding: ActivityContactSettingsBinding
     private lateinit var sharedPreferences: SharedPreferences
     private val calendar = Calendar.getInstance()
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.getDefault())
     private val viewModel: ContactsViewModel by viewModels()
 
     companion object {
@@ -140,8 +140,8 @@ class ContactSettings : AppCompatActivity() {
 
     private fun setContactedDate(lastContactedTime: Long?) {
         lastContactedTime?.let {
-            val date = Date(it)
-            binding.dateEditText.setText(dateFormat.format(date))
+            val date = dateFormat.format(Date(it))
+            binding.dateEditText.setText("zuletzt $date")
         }
     }
 

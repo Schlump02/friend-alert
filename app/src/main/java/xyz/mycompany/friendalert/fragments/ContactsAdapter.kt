@@ -39,17 +39,22 @@ class ContactsAdapter :
 
         holder.binding.daysRemainingTextView.text = when {
             daysRemaining == null -> ""
-            daysRemaining > 30 -> {
+            daysRemaining > 62 -> {
                 val months = daysRemaining / 30
-                "$months months remaining"
+                "noch $months Monate"
+            }
+            daysRemaining > 14 -> {
+                val weeks = daysRemaining / 7
+                "noch $weeks Wochen"
             }
 
-            daysRemaining > 0 -> "$daysRemaining days remaining"
-            daysRemaining == 0 -> "Contact due today"
-            daysRemaining > -30 -> "Contact overdue by ${-daysRemaining} days"
+            daysRemaining > 1 -> "$daysRemaining Tage verbleiben"
+            daysRemaining == 1 -> "ab morgen fällig"
+            daysRemaining == 0 -> "Heute fällig"
+            daysRemaining > -62 -> "Überfällig seit ${-daysRemaining} Tagen"
             else -> {
                 val overdueMonths = (-daysRemaining) / 30
-                "Contact overdue by $overdueMonths months"
+                "Überfällig seit $overdueMonths Monaten"
             }
         }
     }

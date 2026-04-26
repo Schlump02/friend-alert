@@ -75,7 +75,7 @@
             android:text="@{contact.contactName}"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             app:layout_constraintStart_toEndOf="@id/contactImage"
-            app:layout_constraintTop_toTopOf="@id/contactImage"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="John Doe" />
 
         <TextView

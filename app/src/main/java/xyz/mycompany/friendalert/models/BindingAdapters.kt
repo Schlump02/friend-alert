@@ -13,7 +13,7 @@ import java.util.Locale
 @BindingAdapter("formattedDate")
 fun formatContactDate(textView: TextView, timeInMillis: Long?) {
     timeInMillis?.let {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val sdf = SimpleDateFormat("dd. MMMM yyyy", Locale.getDefault())
         val date = Date(it)  // Convert Long to Date
         textView.text = sdf.format(date)
     } ?: run {
