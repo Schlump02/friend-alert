@@ -1,3 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Friend Alert 2.0</string>
+    <string name="no_contact_date">nie kontaktiert</string>
+    <string name="request_contacts_permission">Kontaktzugriff benötigt</string>
+    <string name="ask_again">erneut fragen</string>
+    <string name="denied_contacts_permission">Kontaktzugriff benötigt, kann nur in den Geräteeinstellungen erteilt werden.</string>
+    <string name="open_android_settings">Einstellungen öffnen</string>
+    <string name="exit">Verlassen</string>
+    <string name="add_contact">Kontakt hinzufügen</string>
+    <string name="days">Tage</string>
+    <string name="weeks">Wochen</string>
+    <string name="months">Monate</string>
+    <string name="years">Jahre</string>
+    <string name="save">Speichern</string>
+    <string name="never_contact">nie</string>
+    <string name="note">Notiz</string>
 </resources>
