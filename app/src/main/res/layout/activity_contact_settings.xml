@@ -278,12 +278,19 @@
                             android:text="Notes:"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
-                        <TextView
-                            android:id="@+id/contactNote"
+                        <com.google.android.material.textfield.TextInputLayout 
+                            android:id="@+id/noteInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@{contact.notes}"
-                            tools:text="This is a sample note." />
+                            app:endIconMode="none"
+                            android:hint="Add notes (Optional)">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/noteEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textMultiLine" 
+                                android:lines="4"/>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

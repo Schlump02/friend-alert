@@ -125,6 +125,13 @@ class ContactSettings : AppCompatActivity() {
             binding.lifecycleOwner = this
             setContactedDate(it.lastContactedTime)
             setContactFrequency(it.contactFrequency)
+            // Initialize notes EditText with the loaded contact's note data
+            if (binding.noteEditText != null && contact.notes != null) {
+                binding.noteEditText.setText(contact.notes)
+            } else if (binding.noteEditText != null) {
+                // If no notes, clear it to allow user input
+                binding.noteEditText.setText("")
+            }
         } ?: run {
             showToast("Contact not found!")
             finish()
@@ -219,13 +226,18 @@ class ContactSettings : AppCompatActivity() {
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         )
-        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+        //datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
 
 
     private fun saveContactInformation() {
         binding.contact?.let { contact ->
+            // 1. Get notes from the editable EditText field
+            val newNotes = binding.noteEditText?.text.toString() ?: ""
+            // Update the model object
+            contact.notes = newNotes
+
             val frequencyInDays = getFrequencyInDays()
             contact.contactFrequency = frequencyInDays
             viewModel.saveContact(contact, frequencyInDays)
