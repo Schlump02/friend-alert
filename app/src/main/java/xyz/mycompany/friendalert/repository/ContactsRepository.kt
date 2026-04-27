@@ -18,12 +18,14 @@ class ContactRepository(
 
     suspend fun getContactByLookupKey(lookupKey: String): ContactEntity? {
         return withContext(Dispatchers.IO) {
-            val phoneContact = deviceContacts.getContactByLookupKey(lookupKey)
+            val databaseContact = contactDao.getContactByLookupKey(lookupKey)
 
-            phoneContact?.let {
-                contactDao.updateContactFromDevice(it)
+            databaseContact?.let {
+                val phoneContact = deviceContacts.getContactByLookupKey(lookupKey)
+                phoneContact?.let { contact -> contactDao.updateContactFromDevice(contact) } // Update Uri and Name
+                return@withContext databaseContact
             }
-            contactDao.getContactByLookupKey(lookupKey)
+            return@withContext deviceContacts.getContactByLookupKey(lookupKey)
         }
     }
 

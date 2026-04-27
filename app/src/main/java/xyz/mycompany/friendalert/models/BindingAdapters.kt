@@ -15,7 +15,7 @@ fun formatContactDate(textView: TextView, timeInMillis: Long?) {
     timeInMillis?.let {
         val sdf = SimpleDateFormat("dd. MMMM yyyy", Locale.getDefault())
         val date = Date(it)  // Convert Long to Date
-        textView.text = sdf.format(date)
+        textView.text = "zuletzt am " + sdf.format(date)
     } ?: run {
         textView.text = textView.context.getString(R.string.no_contact_date)
     }

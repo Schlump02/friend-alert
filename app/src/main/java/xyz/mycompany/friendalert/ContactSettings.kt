@@ -126,9 +126,9 @@ class ContactSettings : AppCompatActivity() {
             setContactedDate(it.lastContactedTime)
             setContactFrequency(it.contactFrequency)
             // Initialize notes EditText with the loaded contact's note data
-            if (binding.noteEditText != null && contact.notes != null) {
+            if (contact.notes != null) {
                 binding.noteEditText.setText(contact.notes)
-            } else if (binding.noteEditText != null) {
+            } else {
                 // If no notes, clear it to allow user input
                 binding.noteEditText.setText("")
             }
@@ -141,7 +141,7 @@ class ContactSettings : AppCompatActivity() {
     private fun setContactedDate(lastContactedTime: Long?) {
         lastContactedTime?.let {
             val date = dateFormat.format(Date(it))
-            binding.dateEditText.setText("zuletzt $date")
+            binding.dateEditText.setText("$date")
         }
     }
 

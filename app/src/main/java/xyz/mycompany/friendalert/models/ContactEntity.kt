@@ -2,12 +2,13 @@ package xyz.mycompany.friendalert.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-@Entity(tableName = "contacts")
+@Entity(tableName = "contacts", indices = [Index(value = ["lookup_key"], unique = true)])
 data class ContactEntity(
     @PrimaryKey @ColumnInfo(name = "contact_id") val contactId: Long,
     @ColumnInfo(name = "lookup_key") var lookupKey: String?,

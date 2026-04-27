@@ -49,18 +49,19 @@ interface ContactDao {
     @Query("SELECT * FROM contacts")
     fun getAllContactsCombined(): Flow<List<ContactEntity>>
 
-    @Query(
-        """
-    INSERT OR REPLACE INTO contacts (lookup_key, contact_name, phone_number, photo_uri, notes) VALUES 
-    (:lookupKey, :contactName, :phoneNumber, :photoUri, :notes)
-"""
+    @Query("""
+        UPDATE contacts SET 
+            contact_name = :contactName, 
+            phone_number = :phoneNumber, 
+            photo_uri = :photoUri
+        WHERE lookup_key = :lookupKey
+    """
     )
     fun updateContactFromDevice(
         lookupKey: String?,
         contactName: String?,
         phoneNumber: String?,
-        photoUri: String?,
-        notes: String?
+        photoUri: String?
     )
 
     fun updateContactFromDevice(contact: ContactEntity) {
@@ -68,8 +69,7 @@ interface ContactDao {
             lookupKey = contact.lookupKey,
             contactName = contact.contactName,
             phoneNumber = contact.phoneNumber,
-            photoUri = contact.photoUri,
-            notes = contact.notes
+            photoUri = contact.photoUri
         )
     }
 

@@ -8,7 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import xyz.mycompany.friendalert.models.ContactEntity
 
-@Database(entities = [ContactEntity::class, Setting::class], version = 3, exportSchema = false)
+@Database(entities = [ContactEntity::class, Setting::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
     abstract fun settingsDao(): SettingsDao
@@ -28,6 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(context, AppDatabase::class.java, "userdb")
                 .addMigrations(MIGRATION_1_2)
                 .addMigrations(MIGRATION_2_3)
+                .addMigrations(MIGRATION_3_4)
                 .build()
     }
 }
@@ -43,5 +44,14 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Add the 'lookup_key' column to the 'contacts' table
         database.execSQL("ALTER TABLE contacts ADD COLUMN lookup_key TEXT")
+    }
+}
+
+// --- NEW MIGRATION FOR UNIQUE CONSTRAINT (Version 3 -> Version 4) ---
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // Create the unique index on the lookup_key column.
+        // This is the SQL command that enforces uniqueness and triggers Room's validation logic.
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_contacts_lookup_key ON contacts (lookup_key)")
     }
 }
