@@ -15,4 +15,5 @@
     <string name="never_contact">Never</string>
     <string name="note">Note</string>
     <string name="search">Search Contacts</string>
+    <string name="export_contacts_title">Export Contacts to CSV</string>
 </resources>

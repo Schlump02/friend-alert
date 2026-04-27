@@ -46,6 +46,9 @@ interface ContactDao {
     @Query("SELECT lookup_key FROM contacts")
     fun getAllLookupKeys(): List<String>
 
+    @Query("SELECT * FROM contacts")
+    fun getAllContactsCombined(): Flow<List<ContactEntity>>
+
     @Query(
         """
     INSERT OR REPLACE INTO contacts (lookup_key, contact_name, phone_number, photo_uri, notes) VALUES 

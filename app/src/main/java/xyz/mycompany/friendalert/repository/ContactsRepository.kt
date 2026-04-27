@@ -9,6 +9,7 @@ import xyz.mycompany.friendalert.data.ContactDao
 import xyz.mycompany.friendalert.data.DeviceContacts
 import xyz.mycompany.friendalert.models.ContactEntity
 import java.util.UUID
+import androidx.room.Transaction
 
 class ContactRepository(
     private val contactDao: ContactDao,
@@ -49,6 +50,9 @@ class ContactRepository(
         return@withContext deviceContacts.getAllContacts(searchText)
     }
 
+    fun getContactsForExport(): Flow<List<ContactEntity>> {
+        return contactDao.getAllContactsCombined()
+    }
 
     suspend fun getContactsWithFrequencySet(): Flow<List<ContactEntity>> {
         return withContext(Dispatchers.IO) {

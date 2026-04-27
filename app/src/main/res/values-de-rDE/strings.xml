@@ -16,4 +16,5 @@
     <string name="never_contact">nie</string>
     <string name="note">Notiz</string>
     <string name="search">Durchsuchen</string>
+    <string name="export_contacts_title">Kontaktdaten exportieren</string>
 </resources>
