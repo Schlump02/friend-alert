@@ -17,7 +17,8 @@ data class ContactEntity(
     @ColumnInfo(name = "last_contacted_time") var lastContactedTime: Long?,
     @ColumnInfo(name = "contact_frequency") var contactFrequency: Int?,
     @ColumnInfo(name = "photo_uri") var photoUri: String?,
-    @ColumnInfo(name = "notes") var notes: String?
+    @ColumnInfo(name = "notes") var notes: String?,
+    @ColumnInfo(name = "basic_frequency_mode") var basicFrequencyMode: String?
 ) {
     val daysUntilNextContact: Int?
         get() {
