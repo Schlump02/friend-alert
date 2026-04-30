@@ -48,7 +48,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Create the unique index on the lookup_key column.
         // This is the SQL command that enforces uniqueness and triggers Room's validation logic.
-        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_contacts_lookup_key ON contacts (lookup_key)")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_lookup ON contacts (lookup_key)")
     }
 }
 

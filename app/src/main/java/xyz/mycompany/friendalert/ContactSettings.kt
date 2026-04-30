@@ -33,9 +33,9 @@ class ContactSettings : AppCompatActivity() {
 
     companion object {
         private const val LOOKUP_KEY_EXTRA = "LOOKUP_KEY"
-        private const val BASIC_FREQUENCY_DAYS = 30
-        private const val OCCASIONAL_FREQUENCY_DAYS = 180
-        private const val RARE_FREQUENCY_DAYS = 360
+        private const val BASIC_FREQUENCY_DAYS = 7
+        private const val OCCASIONAL_FREQUENCY_DAYS = 21
+        private const val RARE_FREQUENCY_DAYS = 60
         private const val DAYS_IN_WEEK = 7
         private const val DAYS_IN_MONTH = 30
         private const val FREQUENT_KEY = "notification_frequency_frequent"
