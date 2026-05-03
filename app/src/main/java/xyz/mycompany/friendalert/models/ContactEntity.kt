@@ -31,6 +31,10 @@ data class ContactEntity(
                 TimeUnit.MILLISECONDS.toDays(currentTime - lastContactedTime!!)
             return contactFrequency!! - daysSinceLastContact.toInt()
         }
+    val currentTime: Long
+        get() {
+            return Date().time
+        }
 
     val isSoonOverdue: Boolean
         get() {

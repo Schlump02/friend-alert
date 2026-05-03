@@ -31,14 +31,14 @@ class ContactSettings : AppCompatActivity() {
     private val viewModel: ContactsViewModel by viewModels()
     companion object {
         private const val LOOKUP_KEY_EXTRA = "LOOKUP_KEY"
-        private const val BASIC_FREQUENCY_DAYS = 7
-        private const val OCCASIONAL_FREQUENCY_DAYS = 21
-        private const val RARE_FREQUENCY_DAYS = 60
+        const val BASIC_FREQUENCY_DAYS = 7
+        const val OCCASIONAL_FREQUENCY_DAYS = 21
+        const val RARE_FREQUENCY_DAYS = 60
         private const val DAYS_IN_WEEK = 7
         private const val DAYS_IN_MONTH = 30
-        private const val FREQUENT_KEY = "notification_frequency_frequent"
-        private const val OCCASIONAL_KEY = "notification_frequency_occasional"
-        private const val RARE_KEY = "notification_frequency_rare"
+        const val FREQUENT_KEY = "notification_frequency_frequent"
+        const val OCCASIONAL_KEY = "notification_frequency_occasional"
+        const val RARE_KEY = "notification_frequency_rare"
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
