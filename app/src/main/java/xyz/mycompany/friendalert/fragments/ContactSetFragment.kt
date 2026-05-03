@@ -16,7 +16,7 @@ class ContactsSetFragment : ContactsFragment() {
 
     override val viewModel: ContactsViewModel by activityViewModels()
     override val searchQueryFunction: (String) -> Unit =
-        { query -> viewModel.applySearchQueryToContactsWithFrequency(query) }
+        { query -> viewModel.applySearchQueryToContacts(query) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,7 +31,7 @@ class ContactsSetFragment : ContactsFragment() {
     override fun observeContacts() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filteredContactsWithFrequency.collect { contactsList ->
+                viewModel.filteredContacts.collect { contactsList ->
                     contactsAdapter.submitList(contactsList)
                 }
             }

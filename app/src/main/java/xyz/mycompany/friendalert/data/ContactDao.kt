@@ -30,11 +30,8 @@ interface ContactDao {
     @Query("SELECT * FROM contacts WHERE lookup_key = :lookupKey")
     fun getContactByLookupKey(lookupKey: String?): ContactEntity?
 
-    @Query("SELECT * FROM contacts WHERE contact_frequency IS NOT NULL")
-    fun getContactsWithFrequencySet(): Flow<List<ContactEntity>>
-
-    @Query("SELECT * FROM contacts WHERE contact_frequency IS NULL")
-    fun getContactsWithoutFrequencySet(): Flow<List<ContactEntity>>
+    @Query("SELECT * FROM contacts")
+    fun getContactsSet(): Flow<List<ContactEntity>>
 
     // TODO: Temporary migration, to be deleted in the future
     @Query("SELECT * FROM contacts WHERE lookup_key IS NULL")

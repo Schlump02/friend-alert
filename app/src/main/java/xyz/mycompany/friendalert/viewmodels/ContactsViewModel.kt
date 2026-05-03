@@ -8,34 +8,22 @@ import kotlinx.coroutines.launch
 import xyz.mycompany.friendalert.App
 import xyz.mycompany.friendalert.models.ContactEntity
 
-private const val DAYS_IN_MONTH = 30
-
 class ContactsViewModel : ViewModel() {
     private val repository = App.contactRepository
 
-    // Contact lists
-    private val _contactsWithFrequency = MutableStateFlow<List<ContactEntity>>(emptyList())
-
-    private val _contactsWithoutFrequency = MutableStateFlow<List<ContactEntity>>(emptyList())
+    private val _contactsList = MutableStateFlow<List<ContactEntity>>(emptyList())
 
     private val _selectedContact = MutableStateFlow<ContactEntity?>(null)
     val selectedContact: StateFlow<ContactEntity?> = _selectedContact
 
-    // Filtered lists
-    private val _filteredContactsWithFrequency = MutableStateFlow<List<ContactEntity>>(emptyList())
-    val filteredContactsWithFrequency: StateFlow<List<ContactEntity>> =
-        _filteredContactsWithFrequency
-
-    private val _filteredContactsWithoutFrequency =
-        MutableStateFlow<List<ContactEntity>>(emptyList())
-    val filteredContactsWithoutFrequency: StateFlow<List<ContactEntity>> =
-        _filteredContactsWithoutFrequency
+    private val _filteredContactsList = MutableStateFlow<List<ContactEntity>>(emptyList())
+    val filteredContacts: StateFlow<List<ContactEntity>> =
+        _filteredContactsList
 
     val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
-        fetchContactListWithFrequency()
-        fetchContactListWithoutFrequency()
+        fetchContactList()
     }
 
 
@@ -47,7 +35,7 @@ class ContactsViewModel : ViewModel() {
 
     suspend fun getDeviceContacts(searchText: String?): List<ContactEntity> {
         val deviceContacts = repository.getDeviceContacts(searchText)
-        val lookupKeysInCurrentContacts = this._contactsWithFrequency.value.map { it.lookupKey }
+        val lookupKeysInCurrentContacts = this._contactsList.value.map { it.lookupKey }
 
         val filteredContacts =
             deviceContacts.filterNot { it.lookupKey in lookupKeysInCurrentContacts }
@@ -81,22 +69,13 @@ class ContactsViewModel : ViewModel() {
         }
     }
 
-    fun applySearchQueryToContactsWithFrequency(query: String) {
+    fun applySearchQueryToContacts(query: String) {
         applySearchQuery(
             query,
-            _contactsWithFrequency.value,
-            _filteredContactsWithFrequency
+            _contactsList.value,
+            _filteredContactsList
         )
     }
-
-    fun applySearchQueryToContactsWithoutFrequency(query: String) {
-        applySearchQuery(
-            query,
-            _contactsWithoutFrequency.value,
-            _filteredContactsWithoutFrequency
-        )
-    }
-
 
     fun saveContact(contact: ContactEntity) {
         viewModelScope.launch {
@@ -105,27 +84,13 @@ class ContactsViewModel : ViewModel() {
         }
     }
 
-    private fun fetchContactListWithFrequency() {
+    private fun fetchContactList() {
         viewModelScope.launch {
-            repository.getContactsWithFrequencySet().collect { contacts ->
+            repository.getContactsSet().collect { contacts ->
                 val sortedContacts = contacts.sortedBy { it.daysUntilNextContact }
-                _contactsWithFrequency.value = sortedContacts
-                applySearchQuery("", _contactsWithFrequency.value, _filteredContactsWithFrequency)
+                _contactsList.value = sortedContacts
+                applySearchQuery("", _contactsList.value, _filteredContactsList)
             }
         }
     }
-
-    private fun fetchContactListWithoutFrequency() {
-        viewModelScope.launch {
-            repository.getContactsWithoutFrequencySet().collect { contacts ->
-                _contactsWithoutFrequency.value = contacts
-                applySearchQuery(
-                    "",
-                    _contactsWithoutFrequency.value,
-                    _filteredContactsWithoutFrequency
-                )
-            }
-        }
-    }
-
 }

@@ -56,24 +56,17 @@ class ContactRepository(
         return contactDao.getAllContactsCombined()
     }
 
-    suspend fun getContactsWithFrequencySet(): Flow<List<ContactEntity>> {
+    suspend fun getContactsSet(): Flow<List<ContactEntity>> {
         return withContext(Dispatchers.IO) {
-            contactDao.getContactsWithFrequencySet()
+            contactDao.getContactsSet()
         }
     }
 
     suspend fun getOverdueContacts(): List<ContactEntity> {
-        val contacts = contactDao.getContactsWithFrequencySet().first()
+        val contacts = contactDao.getContactsSet().first()
         return contacts.filter { contact ->
             val days = contact.daysUntilNextContact
             days != null && days < 0 && contact.contactFrequency != null
-        }
-    }
-
-
-    suspend fun getContactsWithoutFrequencySet(): Flow<List<ContactEntity>> {
-        return withContext(Dispatchers.IO) {
-            contactDao.getContactsWithoutFrequencySet()
         }
     }
 
