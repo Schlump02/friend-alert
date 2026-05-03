@@ -333,7 +333,7 @@ class ContactSettings : AppCompatActivity() {
             if (basicModeName != null){
                 contact.contactFrequency = null
             }
-            viewModel.saveContact(contact, frequencyInDays)
+            viewModel.saveContact(contact)
         }
         return true
     }
@@ -387,9 +387,9 @@ class ContactSettings : AppCompatActivity() {
         val checkedChip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
         // Return the frequency value, not just the shared pref int, as we need to ensure consistency.
         return when (checkedChip.id) {
-            R.id.frequentFriend -> BASIC_FREQUENCY_DAYS
-            R.id.occasionalFriend -> OCCASIONAL_FREQUENCY_DAYS
-            R.id.rareFriend -> RARE_FREQUENCY_DAYS
+            R.id.frequentFriend -> sharedPreferences.getInt(FREQUENT_KEY, BASIC_FREQUENCY_DAYS)
+            R.id.occasionalFriend -> sharedPreferences.getInt(OCCASIONAL_KEY, OCCASIONAL_FREQUENCY_DAYS)
+            R.id.rareFriend -> sharedPreferences.getInt(RARE_KEY, RARE_FREQUENCY_DAYS)
             else -> null
         }
     }
