@@ -153,7 +153,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:tag="30"
+                            android:tag="7"
                             android:text="Frequent"
                             android:textColor="@color/white" />
 
@@ -163,7 +163,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:tag="150"
+                            android:tag="21"
                             android:text="Occasional"
                             android:textColor="@color/white" />
 
@@ -173,7 +173,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:tag="300"
+                            android:tag="60"
                             android:text="Rare"
                             android:textColor="@color/white" />
 
