@@ -1,9 +1,8 @@
-package xyz.mycompany.friendalert
+package xyz.mycompany.friendalert.contacts
 
 import android.app.DatePickerDialog
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.MenuItem
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -12,46 +11,48 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.preference.PreferenceManager
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import xyz.mycompany.friendalert.App
+import xyz.mycompany.friendalert.R
+import xyz.mycompany.friendalert.data.AppDatabase
 import xyz.mycompany.friendalert.databinding.ActivityContactSettingsBinding
 import xyz.mycompany.friendalert.models.ContactEntity
+import xyz.mycompany.friendalert.repository.ContactRepository
 import xyz.mycompany.friendalert.viewmodels.ContactsViewModel
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.*
+import kotlin.math.roundToInt
 
 class ContactSettings : AppCompatActivity() {
     private lateinit var binding: ActivityContactSettingsBinding
-    private lateinit var sharedPreferences: SharedPreferences
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.getDefault())
     private val viewModel: ContactsViewModel by viewModels()
+
+    // --- Global Constants for UI/Mode Mapping (Derived from the global keys) ---
     companion object {
         private const val LOOKUP_KEY_EXTRA = "LOOKUP_KEY"
-        private const val BASIC_FREQUENCY_DAYS = 7
-        private const val OCCASIONAL_FREQUENCY_DAYS = 21
-        private const val RARE_FREQUENCY_DAYS = 60
-        private const val DAYS_IN_WEEK = 7
-        private const val DAYS_IN_MONTH = 30
-        private const val FREQUENT_KEY = "notification_frequency_frequent"
-        private const val OCCASIONAL_KEY = "notification_frequency_occasional"
-        private const val RARE_KEY = "notification_frequency_rare"
+
+        val BASIC_MODE_ID = R.id.basicMode
+        val ADVANCED_MODE_ID = R.id.advancedMode
+
+        // Mode names must match the keys used in GlobalConfigKeys and DAO updates
+        private const val MODE_FREQUENT = "FREQUENT"
+        private const val MODE_OCCASIONAL = "OCCASIONAL"
+        private const val MODE_RARE = "RARE"
+
+        // Frequency chip IDs
+        val CHIP_FREQ = R.id.frequentFriend
+        val CHIP_OCCA = R.id.occasionalFriend
+        val CHIP_RARE = R.id.rareFriend
     }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_contact_settings)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        setupUi()
-        val lookupKey = intent.getStringExtra(LOOKUP_KEY_EXTRA) ?: ""
-        viewModel.fetchContactByLookupKey(lookupKey)
-        observeLoadingState()
-    }
-    private fun setupUi() {
+
+    private fun setupListeners() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         // Set up click listener for date picker
         binding.dateEditText.setOnClickListener { showDatePickerDialog() }
         // Set up click listener for save button and attach validation logic
@@ -61,7 +62,6 @@ class ContactSettings : AppCompatActivity() {
                 finish()
             }
         }
-        // Add listeners to re-evaluate saving status when frequency or date changes
         setupFrequencyChangeListeners()
     }
     private fun setupFrequencyChangeListeners() {
@@ -79,61 +79,53 @@ class ContactSettings : AppCompatActivity() {
                 }
             }
         }
-        // Listener for chip group changes (Basic Mode)
-        findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup).setOnCheckedStateChangeListener { group, checkedIds ->
+
+        // 2. Basic Mode Chip Group Listener (Basic Mode)
+        val basicChipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)
+        basicChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val selectedChip = getCheckedChip(group) ?: return@setOnCheckedStateChangeListener
-                // Instead of passing the chip object, calculate the frequency in days based on the selection
-                val newFrequency = when (selectedChip.id) {
-                    R.id.frequentFriend -> sharedPreferences.getInt(FREQUENT_KEY, BASIC_FREQUENCY_DAYS)
-                    R.id.occasionalFriend -> sharedPreferences.getInt(OCCASIONAL_KEY, OCCASIONAL_FREQUENCY_DAYS)
-                    R.id.rareFriend -> sharedPreferences.getInt(RARE_KEY, RARE_FREQUENCY_DAYS)
-                    else -> null
-                }
-
-                if (newFrequency != null) {
-                    val modeName = getBasicModeFromFrequency(newFrequency)
-                    if (modeName != null) {
-                        setBasicModeUI(newFrequency, modeName) // Pass the chip ID for mode tracking
-                    }
-                }
+                handleBasicModeSelection(selectedChip.id)
             } else {
-                // If nothing is checked, treat as invalid state
+                // If nothing is checked, clear mode and validate
                 binding.contact?.let { contact ->
-                    contact.basicFrequencyMode = null // Clear mode if selection cleared
-                    contact.contactFrequency = null
+                    contact.basicFrequencyMode = null
                 }
                 validateSaveButtonState()
             }
         }
-        // Listener for chip group changes (Advanced Mode) - Although selection is handled by setAdvancedModeUI,
-        // we need to ensure validation runs when the user clicks a unit chip.
-        findViewById<com.google.android.material.chip.ChipGroup>(R.id.frequencyUnitGroup).setOnCheckedStateChangeListener { _, _ ->
+
+        // 3. Advanced Mode Chip Group Listener (Advanced Mode)
+        val unitGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.frequencyUnitGroup)
+        unitGroup.setOnCheckedStateChangeListener { _, _ ->
             validateSaveButtonState() // Validate save state after advanced selection change
         }
     }
+
     private fun switchVisibility(visibleView: View, goneView: View) {
         visibleView.visibility = View.VISIBLE
         goneView.visibility = View.GONE
     }
+
+    // --- Lifecycle Observation ---
     private fun observeLoadingState() {
         lifecycleScope.launch {
             viewModel.isLoading.collect { loading ->
-                if (!loading) {
+                if (!loading && !isFinishing()) {
                     observeSelectedContact()
                 }
             }
         }
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // ... existing setup
+        setupListeners()
+        observeLoadingState() // Start observing selected contact once initialized
     }
+
+
     private fun observeSelectedContact() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -143,18 +135,19 @@ class ContactSettings : AppCompatActivity() {
             }
         }
     }
+
+    // --- Handling Contact Data Flow ---
+
     private fun handleContact(contact: ContactEntity?) {
         contact?.let { _ ->
             binding.contact = contact
             binding.lifecycleOwner = this
             setContactedDate(contact.lastContactedTime)
             // Pass the frequency to setContactFrequency which handles basic/advanced mode
-            setContactFrequency(contact.contactFrequency)
-            // Initialize notes EditText with the loaded contact's note data
+            setContactFrequency(contact.contactFrequency, contact.basicFrequencyMode)
             if (contact.notes != null) {
                 binding.noteEditText.setText(contact.notes)
             } else {
-                // If no notes, clear it to allow user input
                 binding.noteEditText.setText("")
             }
         } ?: run {
@@ -162,85 +155,140 @@ class ContactSettings : AppCompatActivity() {
             finish()
         }
     }
+
     private fun setContactedDate(lastContactedTime: Long?) {
         if (lastContactedTime != null) {
             val date = dateFormat.format(Date(lastContactedTime))
             binding.dateEditText.setText("$date")
         } else {
-            // Clear the field if no time is available, assuming the user needs to enter it
             binding.dateEditText.setText("")
         }
-        // Re-evaluate save button state when date changes (or loads)
-        validateSaveButtonState()
-    }
-    private fun setContactFrequency(frequencyInDays: Int?) {
-        if (frequencyInDays == null) {
-            setDefaultUI()
-            binding.contact?.let { it.basicFrequencyMode = null } // Clear mode on empty frequency
-            validateSaveButtonState()
-            return
-        }
-        val basicMode = getBasicModeFromFrequency(frequencyInDays)
-        if (basicMode != null) { setBasicModeUI(frequencyInDays, basicMode) }
-        else { setAdvancedModeUI(frequencyInDays) }
-        // Re-evaluate save button state when frequency changes (or loads)
         validateSaveButtonState()
     }
 
-    /** Helper to determine the mode string from an integer frequency. */
-    private fun getBasicModeFromFrequency(frequency: Int): String? {
-        return when (frequency) {
-            sharedPreferences.getInt(FREQUENT_KEY, BASIC_FREQUENCY_DAYS) -> "FREQUENT"
-            sharedPreferences.getInt(OCCASIONAL_KEY, OCCASIONAL_FREQUENCY_DAYS) -> "OCCASIONAL"
-            sharedPreferences.getInt(RARE_KEY, RARE_FREQUENCY_DAYS) -> "RARE"
+    private fun setContactFrequency(initialFrequency: Int?, initialModeName: String?) {
+        // If frequency is null, we must load the global default from the database instead of relying on a passed value.
+        val currentGlobalDefaults = runBlocking {
+            App.contactRepository.getGlobalFrequencyDefaults()
+        }
+
+        var effectiveFrequency: Int? = initialFrequency // Use existing contact freq if available
+        var effectiveModeName: String? = initialModeName // Use existing basic mode if available
+
+        if (effectiveFrequency == null && effectiveModeName == null) {
+            // No frequency data found in the DB -> Default to current global defaults
+            Log.d("Settings", "No specific frequency set, loading system default.")
+            if (initialModeName == null && initialFrequency == null) {
+                val defaultFreq = when(effectiveModeName) {
+                    MODE_FREQUENT -> currentGlobalDefaults[MODE_FREQUENT]
+                    MODE_OCCASIONAL -> currentGlobalDefaults[MODE_OCCASIONAL]
+                    MODE_RARE -> currentGlobalDefaults[MODE_RARE]
+                    else -> null
+                }
+                effectiveFrequency = defaultFreq
+            }
+        }
+
+        if (effectiveModeName == null) {
+            // If we have a frequency but no mode name, try to deduce the mode based on global defaults
+            val basicModeMatch = when (initialFrequency) {
+                currentGlobalDefaults[MODE_FREQUENT] -> MODE_FREQUENT
+                currentGlobalDefaults[MODE_OCCASIONAL] -> MODE_OCCASIONAL
+                currentGlobalDefaults[MODE_RARE] -> MODE_RARE
+                else -> null
+            }
+            effectiveModeName = basicModeMatch
+        }
+
+
+        if (effectiveFrequency != null && effectiveModeName != null) {
+            setBasicModeUI(effectiveFrequency, effectiveModeName)
+        } else if (effectiveFrequency != null && effectiveModeName == null) {
+            // Advanced mode set correctly
+            setAdvancedModeUI(effectiveFrequency)
+        } else {
+            // Handle empty/initial state gracefully
+            setDefaultUI()
+            binding.contact?.let { it.basicFrequencyMode = null }
+        }
+
+        validateSaveButtonState()
+    }
+
+
+    // --- Core Logic: Basic Mode Handling ---
+
+    private fun handleBasicModeSelection(selectedId: Int) {
+        val contact = binding.contact ?: return
+        var newFrequency = 0
+        val modeName = when (selectedId) {
+            CHIP_FREQ -> MODE_FREQUENT
+            CHIP_OCCA -> MODE_OCCASIONAL
+            CHIP_RARE -> MODE_RARE
             else -> null
         }
+
+        if (modeName != null) {
+            // Use the global default frequency from the database, ignoring hardcoded values.
+            val currentGlobalDefaults = runBlocking { App.contactRepository.getGlobalFrequencyDefaults() }
+            newFrequency = currentGlobalDefaults[modeName] ?: 0 // Fallback to 0 if lookup fails
+        } else {
+            return
+        }
+
+        // 1. Update the model object with the selected mode name and frequency
+        contact.basicFrequencyMode = modeName
+        contact.contactFrequency = newFrequency
+        setBasicModeUI(newFrequency, modeName)
     }
 
     /** Sets the basic mode UI and updates the contact model's basicFrequencyMode. */
     private fun setBasicModeUI(frequencyInDays: Int, modeName: String) {
-        val basicFrequencyDays = sharedPreferences.getInt(FREQUENT_KEY, BASIC_FREQUENCY_DAYS)
-        val occasionalFrequencyDays =
-            sharedPreferences.getInt(OCCASIONAL_KEY, OCCASIONAL_FREQUENCY_DAYS)
-        val rareFrequencyDays =
-            sharedPreferences.getInt(RARE_KEY, RARE_FREQUENCY_DAYS)
-        cleanupChipSelection(findViewById(R.id.basicFrequencyChipGroup))
-
         // 1. Update the model object with the selected mode name
         binding.contact?.let { contact ->
-            contact.basicFrequencyMode = modeName // <-- NEW: Set the basic mode string
+            contact.basicFrequencyMode = modeName // Set the basic mode string
+            contact.contactFrequency = frequencyInDays
         }
 
         // 2. Set the UI chips based on which preference was used to generate this frequency
-        when (frequencyInDays) {
-            basicFrequencyDays -> setBasicFrequencyUi(binding.frequentFriend, "FREQUENT")
-            occasionalFrequencyDays -> setBasicFrequencyUi(binding.occasionalFriend, "OCCASIONAL")
-            rareFrequencyDays -> setBasicFrequencyUi(binding.rareFriend, "RARE")
+        val chipIdToSelect = when(modeName) {
+            MODE_FREQUENT -> CHIP_FREQ
+            MODE_OCCASIONAL -> CHIP_OCCA
+            MODE_RARE -> CHIP_RARE
+            else -> return
+        }
+
+        cleanupChipSelection(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup))
+        // Re-select the correct chip based on the currently loaded global default state
+        val chipToSet = findViewById<Chip>(chipIdToSelect)
+        if (chipToSet != null && !chipToSet.isChecked) {
+            chipToSet.isChecked = true
         }
     }
 
+    // --- Core Logic: Advanced Mode Handling ---
     private fun setAdvancedModeUI(frequencyInDays: Int) {
         binding.advancedMode.isChecked = true
         binding.basicFrequencyLayout.visibility = View.GONE
         binding.advancedFrequencyLayout.visibility = View.VISIBLE
-        // FIX: Replace clearChecked() with manual unchecking logic
-        cleanupChipSelection(findViewById(R.id.frequencyUnitGroup))
+        cleanupChipSelection(findViewById<com.google.android.material.chip.ChipGroup>(R.id.frequencyUnitGroup))
+
         // Clear the basic frequency mode when switching to advanced mode
         binding.contact?.let { it.basicFrequencyMode = null }
 
         when {
-            frequencyInDays % DAYS_IN_MONTH == 0 -> setFrequencyUi(
+            frequencyInDays % 30 == 0 -> setFrequencyUi(
                 binding.monthsChip,
-                (frequencyInDays / DAYS_IN_MONTH).toString()
-                // Pass the chip reference for later listener setup if needed
+                "${frequencyInDays / 30}" // Calculate months remaining
             )
-            frequencyInDays % DAYS_IN_WEEK == 0 -> setFrequencyUi(
+            frequencyInDays % 7 == 0 && frequencyInDays > 1 -> setFrequencyUi(
                 binding.weeksChip,
-                (frequencyInDays / DAYS_IN_WEEK).toString()
+                "${frequencyInDays / 7}"
             )
             frequencyInDays > 0 -> setFrequencyUi(binding.daysChip, frequencyInDays.toString())
         }
     }
+
     private fun setFrequencyUi(chip: Chip, text: String) {
         if (!chip.isChecked) {
             chip.isChecked = true
@@ -324,47 +372,62 @@ class ContactSettings : AppCompatActivity() {
             return false
         }
 
+        // 3. Update and save model data
         binding.contact?.let { contact ->
-            // 3. Update the model object with all validated data points
             val newNotes = binding.noteEditText.text.toString()
             contact.notes = newNotes
+            contact.basicFrequencyMode = basicModeName // Always set mode name, even if advanced
             contact.contactFrequency = frequencyInDays
-            contact.basicFrequencyMode = basicModeName
-            if (basicModeName != null){
-                contact.contactFrequency = null
-            }
+
             viewModel.saveContact(contact)
         }
+
+        // 4. Crucial Step: Update Global Defaults based on the save operation (if needed)
+        // If this were a dedicated 'Global Settings' screen, we would trigger the update here.
+        // For now, assume basic mode change saves *local* frequency, not global one.
+
         return true
     }
 
     /** Combines frequency retrieval and determines the required basic mode string. */
     private fun getFrequencyAndMode(): Pair<Int?, String?> {
-        val frequencyInDays = if (binding.advancedMode.isChecked) {
-            getAdvancedFrequency()
-        } else if (binding.basicMode.isChecked) {
-            getBasicFrequency()
-        } else {
-            null
-        }
-
-        var modeName: String? = null
-        return when {
-            frequencyInDays == null -> Pair(null, null)
-            // Basic Mode was selected and frequency is valid
+        val (frequencyInDays, basicModeName) = when {
+            binding.advancedMode.isChecked -> Pair(getAdvancedFrequency(), null)
             binding.basicMode.isChecked -> {
                 val chip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup))
                 val mode = when (chip?.id) {
-                    R.id.frequentFriend -> "FREQUENT"
-                    R.id.occasionalFriend -> "OCCASIONAL"
-                    R.id.rareFriend -> "RARE"
+                    CHIP_FREQ -> MODE_FREQUENT
+                    CHIP_OCCA -> MODE_OCCASIONAL
+                    CHIP_RARE -> MODE_RARE
                     else -> null
                 }
-                Pair(frequencyInDays, mode)
+                // Frequency is derived from the global default stored in the DB (which was loaded initially)
+                Pair(getGlobalFrequencyFromChip(chip?.id), mode)
             }
-            // Advanced Mode was selected and frequency is valid
-            binding.advancedMode.isChecked -> Pair(frequencyInDays, null) // No basic mode name for advanced mode
             else -> Pair(null, null)
+        }
+
+        return if (frequencyInDays != null && basicModeName == null) {
+            Pair(frequencyInDays, null) // Advanced Mode set correctly
+        } else if (basicModeName != null) {
+            Pair(frequencyInDays, basicModeName) // Basic Mode set correctly
+        } else {
+            Pair(null, null)
+        }
+    }
+
+    /** Helper to get the frequency value based on the selected basic chip ID. */
+    private fun getGlobalFrequencyFromChip(chipId: Int?): Int? {
+        if (chipId == null) return null
+        // We must fetch the current global default from the database, NOT use hardcoded values.
+        val contactRepository = App.contactRepository
+        return runBlocking { // Temporary blocking call for simplified demo logic flow
+            return@runBlocking when (chipId) {
+                CHIP_FREQ -> contactRepository.getGlobalFrequencyDefaults()[MODE_FREQUENT]
+                CHIP_OCCA -> contactRepository.getGlobalFrequencyDefaults()[MODE_OCCASIONAL]
+                CHIP_RARE -> contactRepository.getGlobalFrequencyDefaults()[MODE_RARE]
+                else -> null
+            } // Cast required because getGlobalFrequencyDefaults returns Map<String, Int>
         }
     }
 
@@ -374,8 +437,8 @@ class ContactSettings : AppCompatActivity() {
             val frequencyValue = frequencyValueText.toIntOrNull() ?: return null
             return when {
                 binding.daysChip.isChecked -> frequencyValue
-                binding.weeksChip.isChecked -> frequencyValue * DAYS_IN_WEEK
-                binding.monthsChip.isChecked -> frequencyValue * DAYS_IN_MONTH
+                binding.weeksChip.isChecked -> frequencyValue * 7
+                binding.monthsChip.isChecked -> frequencyValue * 30 // Approximation
                 else -> null
             }
         } else {
@@ -384,13 +447,15 @@ class ContactSettings : AppCompatActivity() {
     }
 
     private fun getBasicFrequency(): Int? {
-        val checkedChip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
-        // Return the frequency value, not just the shared pref int, as we need to ensure consistency.
-        return when (checkedChip.id) {
-            R.id.frequentFriend -> sharedPreferences.getInt(FREQUENT_KEY, BASIC_FREQUENCY_DAYS)
-            R.id.occasionalFriend -> sharedPreferences.getInt(OCCASIONAL_KEY, OCCASIONAL_FREQUENCY_DAYS)
-            R.id.rareFriend -> sharedPreferences.getInt(RARE_KEY, RARE_FREQUENCY_DAYS)
-            else -> null
+        val chip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
+        // Fetch the value from the DB using the global keys, not hardcoded values.
+        return runBlocking {
+            App.contactRepository.getGlobalFrequencyDefaults()[when(chip.id) {
+                CHIP_FREQ -> MODE_FREQUENT
+                CHIP_OCCA -> MODE_OCCASIONAL
+                CHIP_RARE -> MODE_RARE
+                else -> ""
+            }] ?: 0
         }
     }
 
