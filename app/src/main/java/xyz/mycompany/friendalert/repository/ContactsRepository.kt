@@ -20,9 +20,9 @@ class ContactRepository(
 ) {
     /** Fetches all predefined global frequency defaults from the database. */
     suspend fun getGlobalFrequencyDefaults(): Map<String, Int> = withContext(Dispatchers.IO) {
-        val frequentDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_FREQUENT) ?: 30L
-        val occasionalDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_OCCASIONAL) ?: 150L
-        val rareDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_RARE) ?: 300L
+        val frequentDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_FREQUENT) ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val occasionalDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_OCCASIONAL) ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
+        val rareDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_RARE) ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
 
         mapOf(
             "FREQUENT" to frequentDays.toInt(),

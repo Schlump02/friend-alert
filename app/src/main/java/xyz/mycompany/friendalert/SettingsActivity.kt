@@ -3,14 +3,18 @@ package xyz.mycompany.friendalert
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import xyz.mycompany.friendalert.repository.ContactRepository
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import xyz.mycompany.friendalert.utils.GlobalConfigKeys
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -66,6 +70,8 @@ class SettingsActivity : AppCompatActivity() {
         supportFragmentManager.commit {
             replace(R.id.fragment_container, SettingsFragment())
         }
+
+        initializeDummyGlobalDefaults()
     }
 
     /**
@@ -121,5 +127,39 @@ class SettingsActivity : AppCompatActivity() {
             "${contact.contactId},${escape(contact.lookupKey)},${escape(contact.contactName)},${escape(contact.phoneNumber)},${contact.lastContactedTime ?: ""},${contact.contactFrequency ?: ""},${escape(contact.photoUri)},${escape(contact.notes)}"
         }
         return "$header$lines"
+    }
+
+    private fun saveGlobalDefaults(frequencyMap: Map<String, Int>) {
+        val frequent = frequencyMap["FREQUENT"] ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val occasional = frequencyMap["OCCASIONAL"] ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
+        val rare = frequencyMap["RARE"] ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
+
+        // The ViewModel needs to be responsible for coordinating this, but we'll call the repo directly here for simplicity.
+        // In a real app, you would pass these values via a SettingsViewModel.
+
+        lifecycleScope.launch {
+            try {
+                contactRepository.updateGlobalFrequency("FREQUENT", frequent)
+                showToast("✅ Updated Frequent frequency to $frequent days.")
+                contactRepository.updateGlobalFrequency("OCCASIONAL", occasional)
+                contactRepository.updateGlobalFrequency("RARE", rare)
+            } catch (e: Exception) {
+                showToast("Error saving global defaults: ${e.message}")
+                Log.e("SettingsActivity", "Global save error", e)
+            }
+        }
+    }
+
+    // Example usage in onCreate or a dedicated setup method:
+    fun initializeDummyGlobalDefaults() {
+        val dummyFreq = mutableMapOf("FREQUENT" to GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS,
+            "OCCASIONAL" to GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS,
+            "RARE" to GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
+        )
+        saveGlobalDefaults(dummyFreq)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
