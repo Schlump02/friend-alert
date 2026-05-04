@@ -19,7 +19,7 @@
         android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/settings_toolbar">
 
-        <!-- Existing Preferences Widget Area -->
+        <!-- Data Export and Backup Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,36 +38,133 @@
                     android:text="Data Export and Backup"
                     style="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
-                <!-- NEW EXPORT BUTTON -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/export_contacts_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/export_contacts_title" />
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-
-        <!-- Placeholder for SettingsFragment content to continue below -->
+        <!-- Global Settings Section -->
         <TextView
-            android:id="@+id/fragment_placeholder"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="20dp" />
+            android:layout_marginTop="24dp"
+            android:text="Global Notification Settings" />
 
-        <!-- NEW SAVE BUTTON -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set the default frequency for different contact types."
+            style="@style/TextAppearance.MaterialComponents.Body2"/>
+
+
+        <!-- FREQUENT SETTING CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="8dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Frequent Contacts (Daily)"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+                <!-- Editable Text Field for Frequency -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Frequency in Days (e.g., 7)"
+                    app:endIconMode="clear_text">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/freq_input_frequent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- OCCASIONAL SETTING CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="8dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Occasional Contacts (Bi-weekly)"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+                 <!-- Editable Text Field for Frequency -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Frequency in Days (e.g., 21)"
+                    app:endIconMode="clear_text">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/freq_input_occasional"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- RARE SETTING CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="8dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rare Contacts (Seasonal)"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+                 <!-- Editable Text Field for Frequency -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Frequency in Days (e.g., 60)"
+                    app:endIconMode="clear_text">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/freq_input_rare"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_settings_button"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="48dp"
             android:text="@string/save" />
 
     </LinearLayout>
-
-    <!-- Fragment container where SettingsFragment content will load -->
+    <!-- Fragment container is now unused, but kept for structural integrity -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
