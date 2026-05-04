@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +20,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class SettingsActivity : AppCompatActivity() {
-
     private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     private lateinit var contactRepository: ContactRepository
 
@@ -62,8 +62,12 @@ class SettingsActivity : AppCompatActivity() {
 
         // --- 3. Setup UI Listeners ---
         findViewById<com.google.android.material.button.MaterialButton>(R.id.export_contacts_button).setOnClickListener {
-            // The export logic will now calculate and store the bytes before launching.
             exportContacts()
+        }
+
+        // NEW: Set up listener for saving global settings using the dedicated button
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.save_settings_button).setOnClickListener {
+            saveGlobalSettings()
         }
 
         // Populate with SettingsFragment
@@ -71,7 +75,8 @@ class SettingsActivity : AppCompatActivity() {
             replace(R.id.fragment_container, SettingsFragment())
         }
 
-        initializeDummyGlobalDefaults()
+        // Initialize default global settings on startup by reading from the DB and writing them back (if necessary)
+        initializeGlobalDefaultsFromDatabase()
     }
 
     /**
@@ -80,69 +85,71 @@ class SettingsActivity : AppCompatActivity() {
      */
     private var lastExportedBytes: ByteArray = byteArrayOf()
 
+    // --- Data Persistence Logic (Database First) ---
 
-    private fun exportContacts() {
-        // 1. Get all contacts from the database
-        val contacts = try {
-            runBlocking {
-                // This suspends until the Flow emits the list of all contacts
-                contactRepository.getContactsForExport().first()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error fetching contacts for export: " + e.message, Toast.LENGTH_SHORT).show()
-            return
-        }
-
-
-        if (contacts.isEmpty()) {
-            Toast.makeText(this, "No contacts found to export.", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        // 2. Calculate the CSV content string and bytes immediately
-        val csvContentString = generateCsv(contacts)
-        // Store the bytes in the class field so they are available when createDocumentLauncher executes later.
-        this.lastExportedBytes = csvContentString.toByteArray()
-
-
-        // 3. Set up the file save Intent
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            putExtra(Intent.EXTRA_TITLE, "FriendAlert Contacts Export ${dateFormat.format(System.currentTimeMillis())}.csv")
-            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv"))
-        }
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "text/csv"
-
-        // 4. Launch the document picker result launcher (Uses the pre-registered instance)
-        createDocumentLauncher.launch(intent)
-    }
-
-
-    private fun generateCsv(contacts: List<xyz.mycompany.friendalert.models.ContactEntity>): String {
-        val header = "contactId,lookupKey,contactName,phoneNumber,lastContactedTime,contactFrequency,photoUri,notes\n"
-        val lines = contacts.joinToString("\n") { contact ->
-            // Basic CSV sanitization: wrap fields containing commas or newlines in quotes
-            fun escape(s: String?) = "\"${s?.replace("\"", "\"\"") ?: ""}\""
-
-            "${contact.contactId},${escape(contact.lookupKey)},${escape(contact.contactName)},${escape(contact.phoneNumber)},${contact.lastContactedTime ?: ""},${contact.contactFrequency ?: ""},${escape(contact.photoUri)},${escape(contact.notes)}"
-        }
-        return "$header$lines"
-    }
-
-    private fun saveGlobalDefaults(frequencyMap: Map<String, Int>) {
-        val frequent = frequencyMap["FREQUENT"] ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
-        val occasional = frequencyMap["OCCASIONAL"] ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
-        val rare = frequencyMap["RARE"] ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
-
-        // The ViewModel needs to be responsible for coordinating this, but we'll call the repo directly here for simplicity.
-        // In a real app, you would pass these values via a SettingsViewModel.
-
+    /**
+     * Reads global defaults from the database and uses those values to initialize or update settings.
+     * This replaces reliance on SharedPreferences for source of truth.
+     */
+    private fun initializeGlobalDefaultsFromDatabase() {
         lifecycleScope.launch {
             try {
-                contactRepository.updateGlobalFrequency("FREQUENT", frequent)
-                showToast("✅ Updated Frequent frequency to $frequent days.")
-                contactRepository.updateGlobalFrequency("OCCASIONAL", occasional)
-                contactRepository.updateGlobalFrequency("RARE", rare)
+                // Fetch existing data from Room
+                val currentDefaults = contactRepository.getGlobalFrequencyDefaults()
+
+                // Use these defaults to set the initial state and propagate them globally if needed.
+                saveGlobalSettings(currentDefaults)
+                showToast("✅ Global settings initialized successfully using database values.")
+            } catch (e: Exception) {
+                showToast("Error initializing global settings: ${e.message}")
+                Log.e("SettingsActivity", "DB initialization error", e)
+            }
+        }
+    }
+
+    /**
+     * Reads the current frequency values from the preference widgets (simulated/placeholder retrieval).
+     * In a real app, this logic would involve reading temporary variables or passing data
+     * from a dedicated SettingsViewModel. For now, we rely on the fact that the PreferenceWidget
+     * has already saved them to SharedPreferences keys matching the DAO constants.
+     */
+    fun saveGlobalSettings() {
+        // NOTE: This function still relies on reading preferences because the custom widget
+        // (FrequencyPreference) persists to SharedPreferences. If we want pure DB access,
+        // we MUST replace FrequencyPreference entirely with a custom View that reads/writes directly to the DAO.
+        // However, given the constraints, we proceed by assuming the preference values are saved correctly under the global keys.
+
+        // We simulate fetching the current state from the UI's persistent storage (SharedPreferences)
+        val frequentDays = getPreferenceInt(GlobalConfigKeys.GLOBAL_FREQ_FREQUENT) ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val occasionalDays = getPreferenceInt(GlobalConfigKeys.GLOBAL_FREQ_OCCASIONAL) ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
+        val rareDays = getPreferenceInt(GlobalConfigKeys.GLOBAL_FREQ_RARE) ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
+
+        // Store the values retrieved from preferences into a map for consistent saving
+        val currentSettingsMap = mutableMapOf(
+            "FREQUENT" to frequentDays,
+            "OCCASIONAL" to occasionalDays,
+            "RARE" to rareDays
+        )
+
+        saveGlobalSettings(currentSettingsMap)
+    }
+
+    /** Overloaded function that saves the settings based on a map of values. */
+    private fun saveGlobalSettings(frequencyMap: Map<String, Int>) {
+        lifecycleScope.launch {
+            try {
+                // 1. Update DB for Frequent
+                contactRepository.updateGlobalFrequency("FREQUENT", frequencyMap["FREQUENT"]!!)
+                showToast("✅ Updated Frequent frequency to ${frequencyMap["FREQUENT"]} days.")
+
+                // 2. Update DB for Occasional
+                contactRepository.updateGlobalFrequency("OCCASIONAL", frequencyMap["OCCASIONAL"]!!)
+                showToast("✅ Updated Occasional frequency to ${frequencyMap["OCCASIONAL"]} days.")
+
+                // 3. Update DB for Rare
+                contactRepository.updateGlobalFrequency("RARE", frequencyMap["RARE"]!!)
+                showToast("✅ Updated Rare frequency to ${frequencyMap["RARE"]} days.")
+
             } catch (e: Exception) {
                 showToast("Error saving global defaults: ${e.message}")
                 Log.e("SettingsActivity", "Global save error", e)
@@ -150,14 +157,53 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    // Example usage in onCreate or a dedicated setup method:
-    fun initializeDummyGlobalDefaults() {
-        val dummyFreq = mutableMapOf("FREQUENT" to GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS,
-            "OCCASIONAL" to GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS,
-            "RARE" to GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
-        )
-        saveGlobalDefaults(dummyFreq)
+    /** Helper function to safely read the integer preference value by key using SharedPreferences. */
+    private fun getPreferenceInt(key: String): Int? {
+        // This remains necessary due to the PreferenceWidget structure, but we must remember
+        // that this only reads the UI's saved state, not necessarily the DB's source of truth.
+        return try {
+            getSharedPreferences("default_settings", MODE_PRIVATE).getInt(key, -1)
+        } catch (e: Exception) {
+            Log.e("SettingsActivity", "Error reading preference $key", e)
+            null
+        }
     }
+
+    // --- Export Functions (Unchanged) ---
+
+    private fun exportContacts() {
+        val contacts = try {
+            runBlocking {
+                contactRepository.getContactsForExport().first()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error fetching contacts for export: " + e.message, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (contacts.isEmpty()) {
+            Toast.makeText(this, "No contacts found to export.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val csvContentString = generateCsv(contacts)
+        this.lastExportedBytes = csvContentString.toByteArray()
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            putExtra(Intent.EXTRA_TITLE, "FriendAlert Contacts Export ${dateFormat.format(System.currentTimeMillis())}.csv")
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv"))
+        }
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "text/csv"
+        createDocumentLauncher.launch(intent)
+    }
+
+    private fun generateCsv(contacts: List<xyz.mycompany.friendalert.models.ContactEntity>): String {
+        val header = "contactId,lookupKey,contactName,phoneNumber,lastContactedTime,contactFrequency,photoUri,notes\n"
+        val lines = contacts.joinToString("\n") { contact ->
+            fun escape(s: String?) = "\"${s?.replace("\"", "\"\"") ?: ""}\""
+            "${contact.contactId},${escape(contact.lookupKey)},${escape(contact.contactName)},${escape(contact.phoneNumber)},${contact.lastContactedTime ?: ""},${contact.contactFrequency ?: ""},${escape(contact.photoUri)},${escape(contact.notes)}"
+        }
+        return "$header$lines"
+    }
+
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
