@@ -80,4 +80,15 @@ interface ContactDao {
         val contactsToUpdate = contactsFromDevice.filter { it.lookupKey in existingLookupKeys }
         contactsToUpdate.forEach { updateContactFromDevice(it) }
     }
+
+    @Query("""
+        UPDATE contacts
+        SET contact_frequency = CASE
+            WHEN basic_frequency_mode = 'FREQUENT' THEN :frequentDays
+            WHEN basic_frequency_mode = 'OCCASIONAL' THEN :occasionalDays
+            WHEN basic_frequency_mode = 'RARE' THEN :rareDays
+            ELSE contact_frequency
+        END
+    """)
+    suspend fun updateContactsBasicFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int)
 }

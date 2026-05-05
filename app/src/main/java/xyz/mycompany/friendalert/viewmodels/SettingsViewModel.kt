@@ -52,10 +52,11 @@ class SettingsViewModel(private val contactRepository: ContactRepository) : View
 
         viewModelScope.launch {
             try {
-                // Update the global setting and propagate change to DB for all contacts
-                contactRepository.updateGlobalFrequency("FREQUENT", frequentDays)
-                contactRepository.updateGlobalFrequency("OCCASIONAL", occasionalDays)
-                contactRepository.updateGlobalFrequency("RARE", rareDays)
+                contactRepository.updateFrequencySetting("FREQUENT", frequentDays)
+                contactRepository.updateFrequencySetting("OCCASIONAL", occasionalDays)
+                contactRepository.updateFrequencySetting("RARE", rareDays)
+
+                contactRepository.updateContactsBasicFrequencies(frequentDays, occasionalDays, rareDays)
 
                 // Since we successfully updated the database, we update our internal state as well.
                 _globalSettings.value = GlobalFrequencySettings(frequentDays, occasionalDays, rareDays)

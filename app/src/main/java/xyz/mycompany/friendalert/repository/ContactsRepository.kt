@@ -9,7 +9,6 @@ import xyz.mycompany.friendalert.data.SettingsDao
 import xyz.mycompany.friendalert.data.DeviceContacts
 import xyz.mycompany.friendalert.models.ContactEntity
 import java.util.UUID
-import androidx.room.Transaction
 import xyz.mycompany.friendalert.data.Setting
 import xyz.mycompany.friendalert.utils.GlobalConfigKeys // NEW: Using global keys object
 
@@ -32,21 +31,22 @@ class ContactRepository(
     }
 
     /** Updates a single global frequency setting AND propagates the change across all existing contacts. */
-    suspend fun updateGlobalFrequency(modeName: String, newDays: Int) = withContext(Dispatchers.IO) {
+    suspend fun updateFrequencySetting(modeName: String, newDays: Int) = withContext(Dispatchers.IO) {
         val key = GlobalConfigKeys.mapModeToKey(modeName)
 
-        // 1. Update the global setting first (The Source of Truth)
         settingsDao.updateGlobalSetting(
             Setting(key = key, longValue = newDays.toLong())
         )
+        return@withContext
+    }
 
-        // 2. PROPAGATION STEP: Tell the database to update all records using this mode.
-        // We pass a placeholder for oldFrequencyPlaceholder because of SQL query complexity.
-        val updateCount = settingsDao.updateAllContactsFrequency(
-            targetModeName = modeName,
-            newFrequencyDays = newDays
+    /** Updates a single global frequency setting AND propagates the change across all existing contacts. */
+    suspend fun updateContactsBasicFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int) = withContext(Dispatchers.IO) {
+        val updateCount = contactDao.updateContactsBasicFrequencies(
+            frequentDays,
+            occasionalDays,
+            rareDays
         )
-        Log.d("Repo", "Successfully triggered global update for $modeName ($newDays days). ${updateCount} contacts potentially affected.")
         return@withContext
     }
 

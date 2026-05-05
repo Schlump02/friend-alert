@@ -28,15 +28,4 @@ interface SettingsDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateGlobalSetting(setting: Setting)
-
-    /**
-     * CRITICAL: Updates the contact_frequency for ALL contacts that match a specific mode and day count.
-     * This ensures that when a global default changes, all records are updated.
-     */
-    @Query("""
-        UPDATE contacts SET 
-            contact_frequency = :newFrequencyDays
-        WHERE basic_frequency_mode = :targetModeName
-    """)
-    suspend fun updateAllContactsFrequency(targetModeName: String, newFrequencyDays: Int)
 }
