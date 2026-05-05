@@ -1,4 +1,4 @@
-package xyz.mycompany.friendalert.contacts
+package xyz.mycompany.friendalert
 
 import android.app.DatePickerDialog
 import android.os.Bundle
@@ -7,23 +7,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import xyz.mycompany.friendalert.App
-import xyz.mycompany.friendalert.R
-import xyz.mycompany.friendalert.data.AppDatabase
 import xyz.mycompany.friendalert.databinding.ActivityContactSettingsBinding
 import xyz.mycompany.friendalert.models.ContactEntity
-import xyz.mycompany.friendalert.repository.ContactRepository
 import xyz.mycompany.friendalert.viewmodels.ContactsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToInt
 
 class ContactSettings : AppCompatActivity() {
     private lateinit var binding: ActivityContactSettingsBinding
@@ -81,7 +76,7 @@ class ContactSettings : AppCompatActivity() {
         }
 
         // 2. Basic Mode Chip Group Listener (Basic Mode)
-        val basicChipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)
+        val basicChipGroup = findViewById<ChipGroup>(R.id.basicFrequencyChipGroup)
         basicChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val selectedChip = getCheckedChip(group) ?: return@setOnCheckedStateChangeListener
@@ -96,7 +91,7 @@ class ContactSettings : AppCompatActivity() {
         }
 
         // 3. Advanced Mode Chip Group Listener (Advanced Mode)
-        val unitGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.frequencyUnitGroup)
+        val unitGroup = findViewById<ChipGroup>(R.id.frequencyUnitGroup)
         unitGroup.setOnCheckedStateChangeListener { _, _ ->
             validateSaveButtonState() // Validate save state after advanced selection change
         }
@@ -120,10 +115,30 @@ class ContactSettings : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // ... existing setup
+
+        binding = ActivityContactSettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // 1. Check if a LOOKUP_KEY was passed via the Intent (i.e., navigating from ContactsList)
+        val lookupKey = intent.getStringExtra("LOOKUP_KEY")
+
+        // 2. Initialize UI components and listeners AFTER handling the initial data load,
+        // or ensure that setupListeners() is called only after binding exists.
         setupListeners()
+
+        if (lookupKey != null) {
+            // If a key was passed, explicitly tell the ViewModel to fetch this contact immediately.
+            viewModel.fetchContactByLookupKey(lookupKey)
+        } else {
+            // Fallback: Handle cases where we navigate here without an explicit key
+            // (e.g., testing/global settings view).
+            showToast("Error: No contact ID provided.")
+            finish()
+        }
+
         observeLoadingState() // Start observing selected contact once initialized
     }
+
 
 
     private fun observeSelectedContact() {
@@ -258,7 +273,7 @@ class ContactSettings : AppCompatActivity() {
             else -> return
         }
 
-        cleanupChipSelection(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup))
+        cleanupChipSelection(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup))
         // Re-select the correct chip based on the currently loaded global default state
         val chipToSet = findViewById<Chip>(chipIdToSelect)
         if (chipToSet != null && !chipToSet.isChecked) {
@@ -271,7 +286,7 @@ class ContactSettings : AppCompatActivity() {
         binding.advancedMode.isChecked = true
         binding.basicFrequencyLayout.visibility = View.GONE
         binding.advancedFrequencyLayout.visibility = View.VISIBLE
-        cleanupChipSelection(findViewById<com.google.android.material.chip.ChipGroup>(R.id.frequencyUnitGroup))
+        cleanupChipSelection(findViewById<ChipGroup>(R.id.frequencyUnitGroup))
 
         // Clear the basic frequency mode when switching to advanced mode
         binding.contact?.let { it.basicFrequencyMode = null }
@@ -318,7 +333,7 @@ class ContactSettings : AppCompatActivity() {
     /**
      * Helper function to find the currently checked chip in a group of chips.
      */
-    private fun getCheckedChip(group: com.google.android.material.chip.ChipGroup): Chip? {
+    private fun getCheckedChip(group: ChipGroup): Chip? {
         for (i in 0 until group.childCount) {
             val view = group.getChildAt(i)
             if (view is Chip && view.isChecked) {
@@ -327,7 +342,7 @@ class ContactSettings : AppCompatActivity() {
         }
         return null
     }
-    private fun cleanupChipSelection(chipGroup: com.google.android.material.chip.ChipGroup) {
+    private fun cleanupChipSelection(chipGroup: ChipGroup) {
         for (i in 0 until chipGroup.childCount) {
             val view = chipGroup.getChildAt(i)
             if (view is Chip) {
@@ -394,7 +409,7 @@ class ContactSettings : AppCompatActivity() {
         val (frequencyInDays, basicModeName) = when {
             binding.advancedMode.isChecked -> Pair(getAdvancedFrequency(), null)
             binding.basicMode.isChecked -> {
-                val chip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup))
+                val chip = getCheckedChip(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup))
                 val mode = when (chip?.id) {
                     CHIP_FREQ -> MODE_FREQUENT
                     CHIP_OCCA -> MODE_OCCASIONAL
@@ -447,7 +462,7 @@ class ContactSettings : AppCompatActivity() {
     }
 
     private fun getBasicFrequency(): Int? {
-        val chip = getCheckedChip(findViewById<com.google.android.material.chip.ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
+        val chip = getCheckedChip(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
         // Fetch the value from the DB using the global keys, not hardcoded values.
         return runBlocking {
             App.contactRepository.getGlobalFrequencyDefaults()[when(chip.id) {

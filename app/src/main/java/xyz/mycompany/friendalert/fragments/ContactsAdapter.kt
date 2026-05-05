@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import xyz.mycompany.friendalert.contacts.ContactSettings
+import xyz.mycompany.friendalert.ContactSettings
 import xyz.mycompany.friendalert.databinding.ContactItemBinding
 import xyz.mycompany.friendalert.models.ContactEntity
 
