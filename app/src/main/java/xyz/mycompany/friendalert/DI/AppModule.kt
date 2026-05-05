@@ -12,5 +12,5 @@ val appModule = module {
     single { AppDatabase.getInstance(get()).settingsDao() }
     single { androidContext().contentResolver }
     single { DeviceContacts(get(), get()) }
-    single { ContactRepository(get(), get()) }
+    single { ContactRepository(get(), get(), get()) }
 }

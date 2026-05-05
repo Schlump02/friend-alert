@@ -18,6 +18,14 @@ interface SettingsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(setting: Setting)
 
-    @Query("SELECT longValue FROM settings WHERE key = :key")
+    /** Retrieves the long value for a given global configuration key. */
+    @Query("SELECT longValue FROM settings WHERE key = :key LIMIT 1")
     suspend fun getLong(key: String): Long?
+
+    /**
+     * Updates or inserts a system-wide default frequency setting (e.g., Occasional).
+     * Returns true if the update succeeded, false otherwise.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateGlobalSetting(setting: Setting)
 }
