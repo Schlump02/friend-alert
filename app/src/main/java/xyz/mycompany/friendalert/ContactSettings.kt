@@ -139,7 +139,10 @@ class ContactSettings : AppCompatActivity() {
         observeLoadingState() // Start observing selected contact once initialized
     }
 
-
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
 
     private fun observeSelectedContact() {
         lifecycleScope.launch {

@@ -29,17 +29,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var createDocumentLauncher: ActivityResultLauncher<Intent>
 
-    /**
-     * Safely retrieves the EditText view from a TextInputLayout by its resource ID.
-     * This version uses findViewById on a generic View and casts it defensively to prevent ClassCastExceptions.
-     */
     private fun getEditTextById(layoutId: Int): EditText? {
-        // 1. Find the container first using generics (this is the most stable part of the code)
         val view = findViewById<View>(layoutId)
 
-        // 2. Check if this generic View can actually be treated as a TextInputLayout
         if (view is TextInputLayout) {
-            // 3. If it is, access its internal .editText property and cast that result safely.
             return view.editText as? EditText
         }
         return null // Failed to find the correct container type or widget structure.
@@ -48,6 +41,12 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.settings_toolbar)
+        if (toolbar != null) {
+            setSupportActionBar(toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true) // Now safe to use supportActionBar
+        }
 
         // --- Setup ViewModel and State Observation ---
         val repository = App.contactRepository
@@ -94,6 +93,12 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         initializeGlobalDefaultsFromDatabase()
+    }
+
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
     /**
