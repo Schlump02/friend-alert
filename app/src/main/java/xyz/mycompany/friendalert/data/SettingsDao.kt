@@ -36,7 +36,7 @@ interface SettingsDao {
     @Query("""
         UPDATE contacts SET 
             contact_frequency = :newFrequencyDays
-        WHERE basic_frequency_mode = :targetModeName AND contact_frequency IS NULL OR contact_frequency != :newFrequencyDays
+        WHERE basic_frequency_mode = :targetModeName
     """)
     suspend fun updateAllContactsFrequency(targetModeName: String, newFrequencyDays: Int)
 }

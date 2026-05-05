@@ -1,4 +1,5 @@
 package xyz.mycompany.friendalert
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -21,19 +22,27 @@ import xyz.mycompany.friendalert.App.Companion.contactRepository
 import xyz.mycompany.friendalert.utils.GlobalConfigKeys
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.google.android.material.textfield.TextInputLayout
 
 class SettingsActivity : AppCompatActivity() {
     private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var createDocumentLauncher: ActivityResultLauncher<Intent>
 
-    // Helper function to safely get the EditText from a TextInputLayout by its ID
-    /** Safely retrieves the EditText view from a TextInputLayout based on resource ID. */
+    /**
+     * Safely retrieves the EditText view from a TextInputLayout by its resource ID.
+     * This version uses findViewById on a generic View and casts it defensively to prevent ClassCastExceptions.
+     */
     private fun getEditTextById(layoutId: Int): EditText? {
-        val parentLayout = findViewById<androidx.appcompat.widget.AppCompatEditText>(layoutId) // Incorrect casting attempt here, must use the container first
-        val textInputLayout = findViewById<com.google.android.material.textfield.TextInputLayout>(layoutId)
-        // Now that we have the correct type (TextInputLayout), try to get the contained EditText
-        return textInputLayout?.editText as? EditText
+        // 1. Find the container first using generics (this is the most stable part of the code)
+        val view = findViewById<View>(layoutId)
+
+        // 2. Check if this generic View can actually be treated as a TextInputLayout
+        if (view is TextInputLayout) {
+            // 3. If it is, access its internal .editText property and cast that result safely.
+            return view.editText as? EditText
+        }
+        return null // Failed to find the correct container type or widget structure.
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,12 +89,10 @@ class SettingsActivity : AppCompatActivity() {
             exportContacts()
         }
 
-        // New: Set up listener for saving global settings using the dedicated button
         findViewById<com.google.android.material.button.MaterialButton>(R.id.save_settings_button).setOnClickListener {
             saveGlobalSettings()
         }
 
-        // Initialize default global settings by reading from Room and updating internal state.
         initializeGlobalDefaultsFromDatabase()
     }
 
@@ -98,10 +105,9 @@ class SettingsActivity : AppCompatActivity() {
     // --- State Syncing Logic ---
     /** Populates the UI fields (EditText) based on the current state read from Room/ViewModel. */
     private fun populateUiFromGlobalState(settings: SettingsViewModel.GlobalFrequencySettings) {
-        // Use safe retrieval mechanism
-        getEditTextById(R.id.freq_input_frequent)?.setText(settings.frequentDays.toString())
-        getEditTextById(R.id.freq_input_occasional)?.setText(settings.occasionalDays.toString())
-        getEditTextById(R.id.freq_input_rare)?.setText(settings.rareDays.toString())
+        getEditTextById(R.id.freq_input_frequent_layout)?.setText(settings.frequentDays.toString())
+        getEditTextById(R.id.freq_input_occasional_layout)?.setText(settings.occasionalDays.toString())
+        getEditTextById(R.id.freq_input_rare_layout)?.setText(settings.rareDays.toString())
     }
 
     /**
@@ -109,16 +115,12 @@ class SettingsActivity : AppCompatActivity() {
      */
     private fun saveGlobalSettings() {
         // Use safe retrieval mechanism when reading user input for saving
-        val frequentInput = getEditTextById(R.id.freq_input_frequent)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
-        val occasionalInput = getEditTextById(R.id.freq_input_occasional)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
-        val rareInput = getEditTextById(R.id.freq_input_rare)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
+        val frequentInput = getEditTextById(R.id.freq_input_frequent_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val occasionalInput = getEditTextById(R.id.freq_input_occasional_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
+        val rareInput = getEditTextById(R.id.freq_input_rare_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
 
-        // Pass the values to the ViewModel for transactional saving
         settingsViewModel.saveSettings(frequentInput, occasionalInput, rareInput)
     }
-
-
-    // --- Export Functions (No changes needed here, they are clean) ---
 
     private fun exportContacts() {
         val contacts = try {

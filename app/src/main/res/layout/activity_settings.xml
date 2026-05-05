@@ -79,6 +79,7 @@
                     style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
                 <!-- Editable Text Field for Frequency -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/freq_input_frequent_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Frequency in Days (e.g., 7)"
@@ -110,6 +111,7 @@
                     style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
                  <!-- Editable Text Field for Frequency -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/freq_input_occasional_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Frequency in Days (e.g., 21)"
@@ -141,6 +143,7 @@
                     style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
                  <!-- Editable Text Field for Frequency -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/freq_input_rare_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Frequency in Days (e.g., 60)"
