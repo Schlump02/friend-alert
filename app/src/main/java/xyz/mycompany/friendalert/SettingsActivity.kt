@@ -119,7 +119,21 @@ class SettingsActivity : AppCompatActivity() {
         val occasionalInput = getEditTextById(R.id.freq_input_occasional_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
         val rareInput = getEditTextById(R.id.freq_input_rare_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
 
-        settingsViewModel.saveSettings(frequentInput, occasionalInput, rareInput)
+        lifecycleScope.launch {
+            try {
+                settingsViewModel.saveSettings(frequentInput, occasionalInput, rareInput)
+                // Success Feedback
+                showToast("Global settings saved successfully!")
+            } catch (e: IllegalStateException) {
+                // Handle the specific exception thrown by SettingsViewModel on failure
+                showToast("Failed to save settings: ${e.message}")
+                Log.e("SettingsActivity", "Failed to save global settings.", e)
+            } catch (e: Exception) {
+                // Catch any other unexpected errors during saving
+                showToast("An unknown error occurred while saving.")
+                Log.e("SettingsActivity", "Unknown error during save operation", e)
+            }
+        }
     }
 
     private fun exportContacts() {
