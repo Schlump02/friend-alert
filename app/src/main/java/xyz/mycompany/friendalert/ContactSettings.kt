@@ -273,6 +273,10 @@ class ContactSettings : AppCompatActivity() {
             contact.contactFrequency = frequencyInDays
         }
 
+        binding.basicMode.isChecked = true
+        binding.basicFrequencyLayout.visibility = View.VISIBLE
+        binding.advancedFrequencyLayout.visibility = View.GONE
+
         // 2. Set the UI chips based on which preference was used to generate this frequency
         val chipIdToSelect = when(modeName) {
             MODE_FREQUENT -> CHIP_FREQ
