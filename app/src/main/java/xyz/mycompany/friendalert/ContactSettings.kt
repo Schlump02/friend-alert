@@ -1,5 +1,6 @@
 package xyz.mycompany.friendalert
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
@@ -50,6 +51,7 @@ class ContactSettings : AppCompatActivity() {
 
         // Set up click listener for date picker
         binding.dateEditText.setOnClickListener { showDatePickerDialog() }
+
         // Set up click listener for save button and attach validation logic
         binding.saveButton.setOnClickListener {
             if (validateAndSave()) {
@@ -57,9 +59,8 @@ class ContactSettings : AppCompatActivity() {
                 finish()
             }
         }
-        setupFrequencyChangeListeners()
-    }
-    private fun setupFrequencyChangeListeners() {
+
+        // setup frequency change listeners
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 when (checkedId) {
@@ -405,6 +406,31 @@ class ContactSettings : AppCompatActivity() {
         // For now, assume basic mode change saves *local* frequency, not global one.
 
         return true
+    }
+
+    fun showDeleteConfirmationDialog() {
+        binding.contact?.let { contact ->
+            AlertDialog.Builder(this)
+                .setTitle("Delete Contact?")
+                .setMessage("Are you sure you want to delete ${contact.contactName}?")
+                .setPositiveButton("Delete") { _, _ ->
+                    // Execute deletion in the repository and notify success
+                    lifecycleScope.launch {
+                        val success = App.contactRepository.deleteContact(contact.contactId)
+                        if (success) {
+                            showToast("${contact.contactName} deleted successfully.")
+                            // Important: Must signal ContactsList to refresh its data set
+                            finish()
+                        } else {
+                            showToast("Failed to delete contact.")
+                        }
+                    }
+                }
+                .setNegativeButton("Cancel") { _, _ -> finish() }
+                .show()
+        } ?: run {
+            showToast("No contact loaded to delete.")
+        }
     }
 
     /** Combines frequency retrieval and determines the required basic mode string. */

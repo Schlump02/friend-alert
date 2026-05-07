@@ -87,4 +87,7 @@ interface ContactDao {
         END
     """)
     suspend fun updateContactsBasicFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int)
+
+    @Query("DELETE FROM contacts WHERE contact_id = :contactId")
+    fun deleteContactById(contactId: Long) // ADDED DELETE FUNCTION HERE
 }

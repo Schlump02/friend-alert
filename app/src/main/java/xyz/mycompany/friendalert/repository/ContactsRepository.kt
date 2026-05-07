@@ -107,4 +107,14 @@ class ContactRepository(
             days != null && days < 0 && (contact.contactFrequency == null || contact.contactFrequency != 0)
         }
     }
+
+    suspend fun deleteContact(contactId: Long): Boolean = withContext(Dispatchers.IO) {
+        try {
+            contactDao.deleteContactById(contactId)
+            return@withContext true
+        } catch (e: Exception) {
+            Log.e("ContactRepository", "Error deleting contact $contactId: ${e.message}")
+            return@withContext false
+        }
+    }
 }
