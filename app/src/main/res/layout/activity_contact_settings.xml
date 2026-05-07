@@ -254,6 +254,21 @@
                     </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
 
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deleteButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:background="@null"
+                    android:outlineProvider="none"
+                    android:tint="@color/secondary"
+                    app:backgroundTint="@color/accent"
+                    app:fabSize="mini"
+                    app:rippleColor="@android:color/transparent"
+                    app:srcCompat="@drawable/ic_trash_24"
+                    app:tint="@color/secondary" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/saveButton"
                     style="@style/Widget.MaterialComponents.Button"

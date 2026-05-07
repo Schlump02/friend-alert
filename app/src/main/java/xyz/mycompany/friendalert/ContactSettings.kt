@@ -60,6 +60,10 @@ class ContactSettings : AppCompatActivity() {
             }
         }
 
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.deleteButton)?.setOnClickListener {
+            showDeleteConfirmationDialog()
+        }
+
         // setup frequency change listeners
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
@@ -426,7 +430,7 @@ class ContactSettings : AppCompatActivity() {
                         }
                     }
                 }
-                .setNegativeButton("Cancel") { _, _ -> finish() }
+                .setNegativeButton("Cancel") { _, _ -> return@setNegativeButton }
                 .show()
         } ?: run {
             showToast("No contact loaded to delete.")
