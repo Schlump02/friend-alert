@@ -26,6 +26,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
@@ -44,10 +46,26 @@
                 android:id="@+id/contactName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="32dp"
+                android:maxWidth="180dp"
                 android:text="@{contact.contactName}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                tools:text="John Doe" />
+                tools:text="John Doe has a very long name" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/deleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="24dp"
+                android:background="@android:color/transparent"
+                android:outlineProvider="none"
+                android:tint="@color/secondary"
+                app:backgroundTint="@android:color/transparent"
+                app:fabSize="mini"
+                app:rippleColor="@android:color/transparent"
+                app:srcCompat="@drawable/ic_trash_24"
+                app:tint="@color/secondary" />
         </LinearLayout>
 
         <ScrollView
@@ -58,7 +76,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -74,7 +93,7 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:hint="Last Contact Date"
-                    app:hintEnabled="true"
+                    app:hintEnabled="false"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/dateLabel">
@@ -143,9 +162,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:textColor="@color/white"
                         app:singleSelection="true"
-                        tools:visibility="visible"
-                        android:textColor="@color/white">
+                        tools:visibility="visible">
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/frequentFriend"
@@ -256,29 +275,16 @@
 
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/deleteButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:background="@null"
-                    android:outlineProvider="none"
-                    android:tint="@color/secondary"
-                    app:backgroundTint="@color/accent"
-                    app:fabSize="mini"
-                    app:rippleColor="@android:color/transparent"
-                    app:srcCompat="@drawable/ic_trash_24"
-                    app:tint="@color/secondary" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/saveButton"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_margin="32dp"
-                    android:textColor="@color/white"
+                    android:layout_marginTop="28dp"
+                    android:layout_marginBottom="28dp"
                     android:backgroundTint="@color/accent"
-                    android:text="@string/save" />
+                    android:text="@string/save"
+                    android:textColor="@color/white" />
 
 
                 <androidx.cardview.widget.CardView
@@ -293,18 +299,19 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <com.google.android.material.textfield.TextInputLayout 
+                        <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/noteInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:endIconMode="none"
-                            android:hint="@string/note">
+                            android:hint="@string/note"
+                            app:endIconMode="none">
+
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/noteEditText"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="textMultiLine" 
-                                android:lines="4"/>
+                                android:inputType="textMultiLine"
+                                android:lines="4" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>

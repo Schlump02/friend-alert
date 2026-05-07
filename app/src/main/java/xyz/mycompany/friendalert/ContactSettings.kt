@@ -60,7 +60,7 @@ class ContactSettings : AppCompatActivity() {
             }
         }
 
-        findViewById<com.google.android.material.button.MaterialButton>(R.id.deleteButton)?.setOnClickListener {
+        findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.deleteButton)?.setOnClickListener {
             showDeleteConfirmationDialog()
         }
 
