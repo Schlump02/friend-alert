@@ -1,2 +1,1 @@
 - basic mode in SettingsActivity nicht daran erkennen, dass es genau so viele tage sind wie eine der drei Konstanten
-- contact frequency (Tage) anhand des Basic Modes erkennen

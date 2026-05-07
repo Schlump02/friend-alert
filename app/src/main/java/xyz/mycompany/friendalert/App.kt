@@ -38,9 +38,9 @@ class App : Application() {
         contactRepository = get()
 
         initializeSettings()
-        GlobalScope.launch {
+        /*GlobalScope.launch {
             contactRepository.migrateContacts()
-        }
+        }*/
         scheduleWork()
     }
 

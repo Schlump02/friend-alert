@@ -8,7 +8,6 @@ import xyz.mycompany.friendalert.data.ContactDao
 import xyz.mycompany.friendalert.data.SettingsDao
 import xyz.mycompany.friendalert.data.DeviceContacts
 import xyz.mycompany.friendalert.models.ContactEntity
-import java.util.UUID
 import xyz.mycompany.friendalert.data.Setting
 import xyz.mycompany.friendalert.utils.GlobalConfigKeys // NEW: Using global keys object
 
@@ -106,22 +105,6 @@ class ContactRepository(
         return contacts.filter { contact ->
             val days = contact.daysUntilNextContact
             days != null && days < 0 && (contact.contactFrequency == null || contact.contactFrequency != 0)
-        }
-    }
-    suspend fun migrateContacts() {
-        // ... migration logic remains the same
-        val contactsToMigrate = contactDao.getContactsWithoutLookupKey()
-        contactsToMigrate.forEach { contact ->
-            val newLookupKey = deviceContacts.fetchLookupIdForContact(contact.contactId)
-            if (newLookupKey != null) {
-                contact.lookupKey = newLookupKey
-                contactDao.updateContact(contact)
-            } else if (contact.lastContactedTime != null || contact.contactFrequency != null) {
-                contact.lookupKey = UUID.randomUUID().toString()
-                contactDao.updateContact(contact)
-            } else {
-                contactDao.deleteContactByContactId(contact.contactId)
-            }
         }
     }
 }

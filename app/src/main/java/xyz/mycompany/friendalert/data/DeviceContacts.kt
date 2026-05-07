@@ -7,7 +7,6 @@ import contacts.core.Fields
 import contacts.core.contains
 import contacts.core.desc
 import contacts.core.entities.Contact
-import contacts.core.equalTo
 import contacts.core.greaterThan
 import contacts.core.util.decomposedLookupKeys
 import contacts.core.util.noteList
@@ -102,21 +101,6 @@ class DeviceContacts(
 
     private suspend fun getLastSyncTimestamp(): Long {
         return settingsDao.getLong(lastSyncTimestampKey) ?: 0
-    }
-
-    fun fetchLookupIdForContact(contactId: Long): String? {
-        // This function has been added to ensure a smooth migration
-        // between using contact id and lookup key as contact identifier
-        // TODO: Delete this function eventually
-
-        val contactDetails = Contacts(context).query()
-            .where { Contact.Id.equalTo(contactId) }
-            .include(Fields.Contact.LookupKey)
-            .find().toList()
-
-        val contact = contactDetails.firstOrNull()
-
-        return contact?.lookupKey
     }
 
 }

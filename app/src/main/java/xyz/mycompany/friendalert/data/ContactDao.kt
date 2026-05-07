@@ -33,10 +33,6 @@ interface ContactDao {
     @Query("SELECT * FROM contacts")
     fun getContactsSet(): Flow<List<ContactEntity>>
 
-    // TODO: Temporary migration, to be deleted in the future
-    @Query("SELECT * FROM contacts WHERE lookup_key IS NULL")
-    fun getContactsWithoutLookupKey(): List<ContactEntity>
-
     @Query("SELECT contact_id FROM contacts")
     fun getAllContactIds(): List<Long>
 
