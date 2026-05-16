@@ -79,7 +79,6 @@ class ContactsViewModel : ViewModel() {
 
     fun saveContact(contact: ContactEntity) {
         viewModelScope.launch {
-            //contact.contactFrequency = frequencyValue
             repository.saveContact(contact)
         }
     }

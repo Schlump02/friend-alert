@@ -79,14 +79,14 @@
             tools:text="John Doe" />
 
         <TextView
-            android:id="@+id/contactNumber"
+            android:id="@+id/contactNotes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{contact.notes}"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             app:layout_constraintStart_toStartOf="@id/contactName"
             app:layout_constraintTop_toBottomOf="@id/contactName"
-            tools:text="(123) 456-7890" />
+            tools:text="This is a note." />
 
         <TextView
             android:id="@+id/lastContactedDate"
@@ -95,8 +95,8 @@
             android:layout_marginTop="8dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:formattedDate="@{contact.lastContactedTime}"
-            app:layout_constraintStart_toStartOf="@id/contactNumber"
-            app:layout_constraintTop_toBottomOf="@id/contactNumber"
+            app:layout_constraintStart_toStartOf="@id/contactNotes"
+            app:layout_constraintTop_toBottomOf="@id/contactNotes"
             tools:text="Last contacted: Jan 1, 2023" />
 
         <TextView

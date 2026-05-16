@@ -16,4 +16,5 @@
     <string name="note">Note</string>
     <string name="search">Search Contacts</string>
     <string name="export_contacts_title">Export Contacts to CSV</string>
+    <string name="import_contacts_title">Import additional Contacts from CSV</string>
 </resources>

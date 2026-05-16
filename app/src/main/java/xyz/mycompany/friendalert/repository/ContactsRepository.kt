@@ -69,9 +69,39 @@ class ContactRepository(
         withContext(Dispatchers.IO) {
             val existingContact = contactDao.getContactByLookupKey(contact.lookupKey)
             if (existingContact != null) {
-                contactDao.updateContact(contact)
+                val updatedContact = ContactEntity(
+                    contactId = existingContact.contactId,
+                    lookupKey = existingContact.lookupKey,
+                    contactName = contact.contactName,
+                    phoneNumber = contact.phoneNumber,
+                    lastContactedTime = contact.lastContactedTime,
+                    contactFrequency = contact.contactFrequency,
+                    photoUri = contact.photoUri,
+                    notes = contact.notes,
+                    basicFrequencyMode = contact.basicFrequencyMode
+                )
+                contactDao.updateContact(updatedContact)
             } else {
-                contactDao.insertContact(contact)
+                val existingIds = contactDao.getAllContactIds()
+                if(contact.contactId in existingIds){// a contact was passed which is not present in the database, but with an ID that is.
+                    val maxId = existingIds.maxOrNull() ?: 0L
+                    val newIdForUpdate = maxId + contact.contactId // the new id is controllable from the contact entity
+                    val newContact = ContactEntity(
+                        contactId = newIdForUpdate,
+                        lookupKey = contact.lookupKey,
+                        contactName = contact.contactName,
+                        phoneNumber = contact.phoneNumber,
+                        lastContactedTime = contact.lastContactedTime,
+                        contactFrequency = contact.contactFrequency,
+                        photoUri = contact.photoUri,
+                        notes = contact.notes,
+                        basicFrequencyMode = contact.basicFrequencyMode
+                    )
+                    contactDao.insertContact(newContact)
+                }else{
+                    // a completely new contact is added
+                    contactDao.insertContact(contact)
+                }
             }
         }
     }
