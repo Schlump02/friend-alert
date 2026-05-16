@@ -6,6 +6,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/settings_toolbar"
+        style="@style/ToolbarTheme"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -42,12 +43,14 @@
                     android:id="@+id/export_contacts_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/secondary"
                     android:text="@string/export_contacts_title" />
                     
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/import_contacts_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/secondary"
                     android:text="@string/import_contacts_title" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -170,6 +173,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
+            android:textColor="@color/secondary"
             android:text="@string/save" />
 
     </LinearLayout>

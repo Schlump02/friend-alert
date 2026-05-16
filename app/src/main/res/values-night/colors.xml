@@ -11,5 +11,5 @@
     <color name="secondary">#FAFAFA</color>
     <color name="accent">#4B96E0</color>
 
-    <color name="appBackgroundContrast">@color/primary</color>
+    <color name="appBackgroundContrast">@color/secondary</color>
 </resources>

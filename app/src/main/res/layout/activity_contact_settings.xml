@@ -21,7 +21,8 @@
             android:id="@+id/toolbar"
             style="@style/ToolbarTheme"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize"
+            android:titleTextColor="?attr/colorSecondary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,12 +61,12 @@
                 android:layout_marginEnd="24dp"
                 android:background="@android:color/transparent"
                 android:outlineProvider="none"
-                android:tint="@color/secondary"
+                android:tint="@color/accent"
                 app:backgroundTint="@android:color/transparent"
                 app:fabSize="mini"
                 app:rippleColor="@android:color/transparent"
                 app:srcCompat="@drawable/ic_trash_24"
-                app:tint="@color/secondary" />
+                app:tint="@color/accent" />
         </LinearLayout>
 
         <ScrollView
@@ -133,7 +134,7 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Basic"
-                        android:textColor="@color/white"
+                        android:textColor="@color/appBackgroundContrast"
                         app:cornerRadius="0dp" />
 
                     <com.google.android.material.button.MaterialButton
@@ -142,7 +143,7 @@
                         android:layout_width="130dp"
                         android:layout_height="wrap_content"
                         android:text="Advanced"
-                        android:textColor="@color/white"
+                        android:textColor="@color/appBackgroundContrast"
                         app:cornerRadius="0dp" />
                 </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -162,7 +163,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:textColor="@color/white"
+                        android:textColor="@color/appBackgroundContrast"
                         app:singleSelection="true"
                         tools:visibility="visible">
 
@@ -174,7 +175,7 @@
                             android:checkable="true"
                             android:tag="7"
                             android:text="Frequent"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/appBackgroundContrast" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/occasionalFriend"
@@ -184,7 +185,7 @@
                             android:checkable="true"
                             android:tag="21"
                             android:text="Occasional"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/appBackgroundContrast" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/rareFriend"
@@ -194,7 +195,7 @@
                             android:checkable="true"
                             android:tag="60"
                             android:text="Rare"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/appBackgroundContrast" />
 
                     </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
