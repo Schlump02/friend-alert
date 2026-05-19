@@ -31,8 +31,8 @@ class ContactSettings : AppCompatActivity() {
     companion object {
         private const val LOOKUP_KEY_EXTRA = "LOOKUP_KEY"
 
-        val BASIC_MODE_ID = R.id.basicMode
-        val ADVANCED_MODE_ID = R.id.advancedMode
+        val STANDARD_MODE_ID = R.id.standardMode
+        val CUSTOM_MODE_ID = R.id.customMode
 
         // Mode names must match the keys used in GlobalConfigKeys and DAO updates
         private const val MODE_FREQUENT = "FREQUENT"
@@ -68,37 +68,37 @@ class ContactSettings : AppCompatActivity() {
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 when (checkedId) {
-                    R.id.basicMode -> switchVisibility(
-                        binding.basicFrequencyLayout,
-                        binding.advancedFrequencyLayout
+                    R.id.standardMode -> switchVisibility(
+                        binding.standardFrequencyLayout,
+                        binding.customFrequencyLayout
                     )
-                    R.id.advancedMode -> switchVisibility(
-                        binding.advancedFrequencyLayout,
-                        binding.basicFrequencyLayout
+                    R.id.customMode -> switchVisibility(
+                        binding.customFrequencyLayout,
+                        binding.standardFrequencyLayout
                     )
                 }
             }
         }
 
-        // 2. Basic Mode Chip Group Listener (Basic Mode)
-        val basicChipGroup = findViewById<ChipGroup>(R.id.basicFrequencyChipGroup)
-        basicChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+        // 2. Standard Mode Chip Group Listener (Standard Mode)
+        val standardChipGroup = findViewById<ChipGroup>(R.id.standardFrequencyChipGroup)
+        standardChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val selectedChip = getCheckedChip(group) ?: return@setOnCheckedStateChangeListener
-                handleBasicModeSelection(selectedChip.id)
+                handleStandardModeSelection(selectedChip.id)
             } else {
                 // If nothing is checked, clear mode and validate
                 binding.contact?.let { contact ->
-                    contact.basicFrequencyMode = null
+                    contact.standardFrequencyMode = null
                 }
                 validateSaveButtonState()
             }
         }
 
-        // 3. Advanced Mode Chip Group Listener (Advanced Mode)
+        // 3. Custom Mode Chip Group Listener (Custom Mode)
         val unitGroup = findViewById<ChipGroup>(R.id.frequencyUnitGroup)
         unitGroup.setOnCheckedStateChangeListener { _, _ ->
-            validateSaveButtonState() // Validate save state after advanced selection change
+            validateSaveButtonState() // Validate save state after custom selection change
         }
     }
 
@@ -166,8 +166,8 @@ class ContactSettings : AppCompatActivity() {
             binding.contact = contact
             binding.lifecycleOwner = this
             setContactedDate(contact.lastContactedTime)
-            // Pass the frequency to setContactFrequency which handles basic/advanced mode
-            setContactFrequency(contact.contactFrequency, contact.basicFrequencyMode)
+            // Pass the frequency to setContactFrequency which handles standard/custom mode
+            setContactFrequency(contact.contactFrequency, contact.standardFrequencyMode)
             if (contact.notes != null) {
                 binding.noteEditText.setText(contact.notes)
             } else {
@@ -196,7 +196,7 @@ class ContactSettings : AppCompatActivity() {
         }
 
         var effectiveFrequency: Int? = initialFrequency // Use existing contact freq if available
-        var effectiveModeName: String? = initialModeName // Use existing basic mode if available
+        var effectiveModeName: String? = initialModeName // Use existing standard mode if available
 
         if (effectiveFrequency == null && effectiveModeName == null) {
             // No frequency data found in the DB -> Default to current global defaults
@@ -214,34 +214,34 @@ class ContactSettings : AppCompatActivity() {
 
         if (effectiveModeName == null) {
             // If we have a frequency but no mode name, try to deduce the mode based on global defaults
-            val basicModeMatch = when (initialFrequency) {
+            val standardModeMatch = when (initialFrequency) {
                 currentGlobalDefaults[MODE_FREQUENT] -> MODE_FREQUENT
                 currentGlobalDefaults[MODE_OCCASIONAL] -> MODE_OCCASIONAL
                 currentGlobalDefaults[MODE_RARE] -> MODE_RARE
                 else -> null
             }
-            effectiveModeName = basicModeMatch
+            effectiveModeName = standardModeMatch
         }
 
 
         if (effectiveFrequency != null && effectiveModeName != null) {
-            setBasicModeUI(effectiveFrequency, effectiveModeName)
+            setStandardModeUI(effectiveFrequency, effectiveModeName)
         } else if (effectiveFrequency != null && effectiveModeName == null) {
-            // Advanced mode set correctly
-            setAdvancedModeUI(effectiveFrequency)
+            // Custom mode set correctly
+            setCustomModeUI(effectiveFrequency)
         } else {
             // Handle empty/initial state gracefully
             setDefaultUI()
-            binding.contact?.let { it.basicFrequencyMode = null }
+            binding.contact?.let { it.standardFrequencyMode = null }
         }
 
         validateSaveButtonState()
     }
 
 
-    // --- Core Logic: Basic Mode Handling ---
+    // --- Core Logic: Standard Mode Handling ---
 
-    private fun handleBasicModeSelection(selectedId: Int) {
+    private fun handleStandardModeSelection(selectedId: Int) {
         val contact = binding.contact ?: return
         var newFrequency = 0
         val modeName = when (selectedId) {
@@ -260,22 +260,22 @@ class ContactSettings : AppCompatActivity() {
         }
 
         // 1. Update the model object with the selected mode name and frequency
-        contact.basicFrequencyMode = modeName
+        contact.standardFrequencyMode = modeName
         contact.contactFrequency = newFrequency
-        setBasicModeUI(newFrequency, modeName)
+        setStandardModeUI(newFrequency, modeName)
     }
 
-    /** Sets the basic mode UI and updates the contact model's basicFrequencyMode. */
-    private fun setBasicModeUI(frequencyInDays: Int, modeName: String) {
+    /** Sets the standard mode UI and updates the contact model's standardFrequencyMode. */
+    private fun setStandardModeUI(frequencyInDays: Int, modeName: String) {
         // 1. Update the model object with the selected mode name
         binding.contact?.let { contact ->
-            contact.basicFrequencyMode = modeName // Set the basic mode string
+            contact.standardFrequencyMode = modeName // Set the standard mode string
             contact.contactFrequency = frequencyInDays
         }
 
-        binding.basicMode.isChecked = true
-        binding.basicFrequencyLayout.visibility = View.VISIBLE
-        binding.advancedFrequencyLayout.visibility = View.GONE
+        binding.standardMode.isChecked = true
+        binding.standardFrequencyLayout.visibility = View.VISIBLE
+        binding.customFrequencyLayout.visibility = View.GONE
 
         // 2. Set the UI chips based on which preference was used to generate this frequency
         val chipIdToSelect = when(modeName) {
@@ -285,7 +285,7 @@ class ContactSettings : AppCompatActivity() {
             else -> return
         }
 
-        cleanupChipSelection(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup))
+        cleanupChipSelection(findViewById<ChipGroup>(R.id.standardFrequencyChipGroup))
         // Re-select the correct chip based on the currently loaded global default state
         val chipToSet = findViewById<Chip>(chipIdToSelect)
         if (chipToSet != null && !chipToSet.isChecked) {
@@ -293,15 +293,15 @@ class ContactSettings : AppCompatActivity() {
         }
     }
 
-    // --- Core Logic: Advanced Mode Handling ---
-    private fun setAdvancedModeUI(frequencyInDays: Int) {
-        binding.advancedMode.isChecked = true
-        binding.basicFrequencyLayout.visibility = View.GONE
-        binding.advancedFrequencyLayout.visibility = View.VISIBLE
+    // --- Core Logic: Custom Mode Handling ---
+    private fun setCustomModeUI(frequencyInDays: Int) {
+        binding.customMode.isChecked = true
+        binding.standardFrequencyLayout.visibility = View.GONE
+        binding.customFrequencyLayout.visibility = View.VISIBLE
         cleanupChipSelection(findViewById<ChipGroup>(R.id.frequencyUnitGroup))
 
-        // Clear the basic frequency mode when switching to advanced mode
-        binding.contact?.let { it.basicFrequencyMode = null }
+        // Clear the standard frequency mode when switching to custom mode
+        binding.contact?.let { it.standardFrequencyMode = null }
 
         when {
             frequencyInDays % 30 == 0 -> setFrequencyUi(
@@ -322,23 +322,23 @@ class ContactSettings : AppCompatActivity() {
         }
         binding.frequencyEditText.setText(text)
     }
-    /** Sets basic chip and also updates the contact model's mode string */
-    private fun setBasicFrequencyUi(chip: Chip, modeName: String) {
+    /** Sets standard chip and also updates the contact model's mode string */
+    private fun setStandardFrequencyUi(chip: Chip, modeName: String) {
         // Reset all and select the provided one
-        cleanupChipSelection(binding.basicFrequencyChipGroup)
+        cleanupChipSelection(binding.standardFrequencyChipGroup)
         if (!chip.isChecked) {
             chip.isChecked = true
         }
-        // Update the model object with the selected basic mode name
+        // Update the model object with the selected standard mode name
         binding.contact?.let { contact ->
-            contact.basicFrequencyMode = modeName // <-- NEW: Set the basic mode string
+            contact.standardFrequencyMode = modeName
         }
     }
 
     private fun setDefaultUI() {
-        binding.basicMode.isChecked = true
-        binding.basicFrequencyLayout.visibility = View.VISIBLE
-        binding.advancedFrequencyLayout.visibility = View.GONE
+        binding.standardMode.isChecked = true
+        binding.standardFrequencyLayout.visibility = View.VISIBLE
+        binding.customFrequencyLayout.visibility = View.GONE
         // Ensure the save button state is updated when switching modes
         validateSaveButtonState()
     }
@@ -393,9 +393,9 @@ class ContactSettings : AppCompatActivity() {
         }
 
         // 2. Get Frequency and validate mode name
-        val (frequencyInDays, basicModeName) = getFrequencyAndMode()
-        if (frequencyInDays == null && basicModeName == null) {
-            showToast("Please set a contact frequency or basic mode.")
+        val (frequencyInDays, standardModeName) = getFrequencyAndMode()
+        if (frequencyInDays == null && standardModeName == null) {
+            showToast("Please set a contact frequency or standard mode.")
             return false
         }
 
@@ -403,15 +403,11 @@ class ContactSettings : AppCompatActivity() {
         binding.contact?.let { contact ->
             val newNotes = binding.noteEditText.text.toString()
             contact.notes = newNotes
-            contact.basicFrequencyMode = basicModeName // Always set mode name, even if advanced
+            contact.standardFrequencyMode = standardModeName // Always set mode name, even if custom
             contact.contactFrequency = frequencyInDays
 
             viewModel.saveContact(contact)
         }
-
-        // 4. Crucial Step: Update Global Defaults based on the save operation (if needed)
-        // If this were a dedicated 'Global Settings' screen, we would trigger the update here.
-        // For now, assume basic mode change saves *local* frequency, not global one.
 
         return true
     }
@@ -441,12 +437,12 @@ class ContactSettings : AppCompatActivity() {
         }
     }
 
-    /** Combines frequency retrieval and determines the required basic mode string. */
+    /** Combines frequency retrieval and determines the required standard mode string. */
     private fun getFrequencyAndMode(): Pair<Int?, String?> {
-        val (frequencyInDays, basicModeName) = when {
-            binding.advancedMode.isChecked -> Pair(getAdvancedFrequency(), null)
-            binding.basicMode.isChecked -> {
-                val chip = getCheckedChip(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup))
+        val (frequencyInDays, standardModeName) = when {
+            binding.customMode.isChecked -> Pair(getCustomFrequency(), null)
+            binding.standardMode.isChecked -> {
+                val chip = getCheckedChip(findViewById<ChipGroup>(R.id.standardFrequencyChipGroup))
                 val mode = when (chip?.id) {
                     CHIP_FREQ -> MODE_FREQUENT
                     CHIP_OCCA -> MODE_OCCASIONAL
@@ -459,16 +455,16 @@ class ContactSettings : AppCompatActivity() {
             else -> Pair(null, null)
         }
 
-        return if (frequencyInDays != null && basicModeName == null) {
-            Pair(frequencyInDays, null) // Advanced Mode set correctly
-        } else if (basicModeName != null) {
-            Pair(frequencyInDays, basicModeName) // Basic Mode set correctly
+        return if (frequencyInDays != null && standardModeName == null) {
+            Pair(frequencyInDays, null) // Custom Mode set correctly
+        } else if (standardModeName != null) {
+            Pair(frequencyInDays, standardModeName) // Standard Mode set correctly
         } else {
             Pair(null, null)
         }
     }
 
-    /** Helper to get the frequency value based on the selected basic chip ID. */
+    /** Helper to get the frequency value based on the selected standard chip ID. */
     private fun getGlobalFrequencyFromChip(chipId: Int?): Int? {
         if (chipId == null) return null
         // We must fetch the current global default from the database, NOT use hardcoded values.
@@ -483,7 +479,7 @@ class ContactSettings : AppCompatActivity() {
         }
     }
 
-    private fun getAdvancedFrequency(): Int? {
+    private fun getCustomFrequency(): Int? {
         val frequencyValueText = binding.frequencyEditText.text.toString()
         if (!frequencyValueText.isEmpty()) {
             val frequencyValue = frequencyValueText.toIntOrNull() ?: return null
@@ -498,8 +494,8 @@ class ContactSettings : AppCompatActivity() {
         }
     }
 
-    private fun getBasicFrequency(): Int? {
-        val chip = getCheckedChip(findViewById<ChipGroup>(R.id.basicFrequencyChipGroup)) ?: return null
+    private fun getStandardFrequency(): Int? {
+        val chip = getCheckedChip(findViewById<ChipGroup>(R.id.standardFrequencyChipGroup)) ?: return null
         // Fetch the value from the DB using the global keys, not hardcoded values.
         return runBlocking {
             App.contactRepository.getGlobalFrequencyDefaults()[when(chip.id) {

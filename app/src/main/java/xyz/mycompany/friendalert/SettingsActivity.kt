@@ -158,7 +158,7 @@ class SettingsActivity : AppCompatActivity() {
      */
     private fun saveGlobalSettings() {
         // Use safe retrieval mechanism when reading user input for saving
-        val frequentInput = getEditTextById(R.id.freq_input_frequent_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val frequentInput = getEditTextById(R.id.freq_input_frequent_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_STANDARD_FREQUENCY_DAYS
         val occasionalInput = getEditTextById(R.id.freq_input_occasional_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
         val rareInput = getEditTextById(R.id.freq_input_rare_layout)?.text?.toString()?.toIntOrNull() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
 
@@ -205,10 +205,10 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun generateCsv(contacts: List<xyz.mycompany.friendalert.models.ContactEntity>): String {
-        val header = "lookupKey,contactName,phoneNumber,lastContactedTime,contactFrequency,photoUri,notes,basicFrequencyMode\n"
+        val header = "lookupKey,contactName,phoneNumber,lastContactedTime,contactFrequency,photoUri,notes,standardFrequencyMode\n"
         val lines = contacts.joinToString("\n") { contact ->
             fun escape(s: String?) = "\"${s?.replace("\"", "\"\"") ?: ""}\""
-            "${escape(contact.lookupKey)},${escape(contact.contactName)},${escape(contact.phoneNumber)},${contact.lastContactedTime ?: ""},${contact.contactFrequency ?: ""},${escape(contact.photoUri)},${escape(contact.notes)},${escape(contact.basicFrequencyMode)}"
+            "${escape(contact.lookupKey)},${escape(contact.contactName)},${escape(contact.phoneNumber)},${contact.lastContactedTime ?: ""},${contact.contactFrequency ?: ""},${escape(contact.photoUri)},${escape(contact.notes)},${escape(contact.standardFrequencyMode)}"
         }
         return "$header$lines"
     }
@@ -238,7 +238,7 @@ class SettingsActivity : AppCompatActivity() {
                                     contactFrequency = fields[4]?.trim()?.toIntOrNull(),
                                     photoUri = photoUri,
                                     notes = fields[6]?.trim(),
-                                    basicFrequencyMode = fields[7]?.trim()
+                                    standardFrequencyMode = fields[7]?.trim()
                                 )
                                 // Use the repository to save/update the contact, handling potential conflicts
                                 lifecycleScope.launch {
@@ -262,7 +262,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    /** Basic CSV parser that handles quoted values and commas within quotes. */
+    /** Standard CSV parser that handles quoted values and commas within quotes. */
     private fun parseCsvLine(line: String): List<String>? {
         val fields = mutableListOf<String>()
         var currentField = StringBuilder()
@@ -305,7 +305,7 @@ class SettingsActivity : AppCompatActivity() {
                 val currentSettings = contactRepository.getGlobalFrequencyDefaults()
 
                 val defaultSettings = SettingsViewModel.GlobalFrequencySettings(
-                    frequentDays = currentSettings["FREQUENT"]?.toInt() ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS,
+                    frequentDays = currentSettings["FREQUENT"]?.toInt() ?: GlobalConfigKeys.DEFAULT_STANDARD_FREQUENCY_DAYS,
                     occasionalDays = currentSettings["OCCASIONAL"]?.toInt() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS,
                     rareDays = currentSettings["RARE"]?.toInt() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
                 )

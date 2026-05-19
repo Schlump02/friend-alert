@@ -18,7 +18,7 @@ class ContactRepository(
 ) {
     /** Fetches all predefined global frequency defaults from the database. */
     suspend fun getGlobalFrequencyDefaults(): Map<String, Int> = withContext(Dispatchers.IO) {
-        val frequentDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_FREQUENT) ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS
+        val frequentDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_FREQUENT) ?: GlobalConfigKeys.DEFAULT_STANDARD_FREQUENCY_DAYS
         val occasionalDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_OCCASIONAL) ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS
         val rareDays = settingsDao.getLong(GlobalConfigKeys.GLOBAL_FREQ_RARE) ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
 
@@ -40,8 +40,8 @@ class ContactRepository(
     }
 
     /** Updates a single global frequency setting AND propagates the change across all existing contacts. */
-    suspend fun updateContactsBasicFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int) = withContext(Dispatchers.IO) {
-        val updateCount = contactDao.updateContactsBasicFrequencies(
+    suspend fun updateContactsStandardFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int) = withContext(Dispatchers.IO) {
+        val updateCount = contactDao.updateContactsStandardFrequencies(
             frequentDays,
             occasionalDays,
             rareDays
@@ -78,7 +78,7 @@ class ContactRepository(
                     contactFrequency = contact.contactFrequency,
                     photoUri = contact.photoUri,
                     notes = contact.notes,
-                    basicFrequencyMode = contact.basicFrequencyMode
+                    standardFrequencyMode = contact.standardFrequencyMode
                 )
                 contactDao.updateContact(updatedContact)
             } else {
@@ -95,7 +95,7 @@ class ContactRepository(
                         contactFrequency = contact.contactFrequency,
                         photoUri = contact.photoUri,
                         notes = contact.notes,
-                        basicFrequencyMode = contact.basicFrequencyMode
+                        standardFrequencyMode = contact.standardFrequencyMode
                     )
                     contactDao.insertContact(newContact)
                 }else{

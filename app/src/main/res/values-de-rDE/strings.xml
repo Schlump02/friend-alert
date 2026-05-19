@@ -17,4 +17,19 @@
     <string name="note">Notiz</string>
     <string name="search">Durchsuchen</string>
     <string name="export_contacts_title">Kontaktdaten exportieren</string>
+    <string name="import_contacts_title">Zusätzliche Kontakte importieren</string>
+    <string name="export_import_header">Datenbackup</string>
+    <string name="frequency_settings_header">Kontakthäufigkeitsmodi</string>
+    <string name="standard_frequency">Häufige Frequenz</string>
+    <string name="occasional_frequency">Gelegentliche Frequenz</string>
+    <string name="rare_frequency">Seltene Frequenz</string>
+    <string name="frequency_hint">Kontaktintervall in Tagen</string>
+    <string name="frequency_hint_no_unit">Kontaktintervall</string>
+    <string name="last_contacted_label">Zuletzt kontaktiert:</string>
+    <string name="recurring_frequency_label">Kontaktintervall:</string>
+    <string name="frequency_mode_standard">Standard</string>
+    <string name="frequency_mode_custom">Individuell</string>
+    <string name="standard_frequency_mode">Häufig</string>
+    <string name="occasional_frequency_mode">Gelegentlich</string>
+    <string name="rare_frequency_mode">Selten</string>
 </resources>

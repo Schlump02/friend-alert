@@ -17,4 +17,18 @@
     <string name="search">Search Contacts</string>
     <string name="export_contacts_title">Export Contacts to CSV</string>
     <string name="import_contacts_title">Import additional Contacts from CSV</string>
+    <string name="export_import_header">Data Export and Backup</string>
+    <string name="frequency_settings_header">Global Notification Settings</string>
+    <string name="standard_frequency">Frequent Frequency</string>
+    <string name="occasional_frequency">Occasional Frequency</string>
+    <string name="rare_frequency">Rare Frequency</string>
+    <string name="frequency_hint">Intervall in Days</string>
+    <string name="frequency_hint_no_unit">Enter Frequency</string>
+    <string name="last_contacted_label">Last Contacted:</string>
+    <string name="recurring_frequency_label">Contact Intervall:</string>
+    <string name="frequency_mode_standard">Standard</string>
+    <string name="frequency_mode_custom">Custom</string>
+    <string name="standard_frequency_mode">Frequent</string>
+    <string name="occasional_frequency_mode">Occasional</string>
+    <string name="rare_frequency_mode">Rare</string>
 </resources>

@@ -1,1 +1,0 @@
-- basic mode in SettingsActivity nicht daran erkennen, dass es genau so viele tage sind wie eine der drei Konstanten

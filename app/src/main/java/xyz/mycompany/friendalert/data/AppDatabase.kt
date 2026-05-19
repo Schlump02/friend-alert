@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import xyz.mycompany.friendalert.models.ContactEntity
-@Database(entities = [ContactEntity::class, Setting::class], version = 5, exportSchema = false)
+@Database(entities = [ContactEntity::class, Setting::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
     abstract fun settingsDao(): SettingsDao
@@ -25,6 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(MIGRATION_2_3)
                 .addMigrations(MIGRATION_3_4)
                 .addMigrations(MIGRATION_4_5)
+                .addMigrations(MIGRATION_5_6)
                 .build()
     }
 }
@@ -55,5 +56,11 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("ALTER TABLE contacts ADD COLUMN basic_frequency_mode TEXT")
+    }
+}
+
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE contacts RENAME COLUMN basic_frequency_mode TO standard_frequency_mode")
     }
 }

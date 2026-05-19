@@ -23,7 +23,7 @@ class SettingsViewModel(private val contactRepository: ContactRepository) : View
     }
 
     data class GlobalFrequencySettings(
-        val frequentDays: Int = GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS,
+        val frequentDays: Int = GlobalConfigKeys.DEFAULT_STANDARD_FREQUENCY_DAYS,
         val occasionalDays: Int = GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS,
         val rareDays: Int = GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
     )
@@ -36,7 +36,7 @@ class SettingsViewModel(private val contactRepository: ContactRepository) : View
             // This reads directly from the DAO via the Repository
             val defaults = contactRepository.getGlobalFrequencyDefaults()
             _globalSettings.value = GlobalFrequencySettings(
-                frequentDays = defaults["FREQUENT"]?.toInt() ?: GlobalConfigKeys.DEFAULT_BASIC_FREQUENCY_DAYS,
+                frequentDays = defaults["FREQUENT"]?.toInt() ?: GlobalConfigKeys.DEFAULT_STANDARD_FREQUENCY_DAYS,
                 occasionalDays = defaults["OCCASIONAL"]?.toInt() ?: GlobalConfigKeys.DEFAULT_OCCASIONAL_FREQUENCY_DAYS,
                 rareDays = defaults["RARE"]?.toInt() ?: GlobalConfigKeys.DEFAULT_RARE_FREQUENCY_DAYS
             )
@@ -56,7 +56,7 @@ class SettingsViewModel(private val contactRepository: ContactRepository) : View
                 contactRepository.updateFrequencySetting("OCCASIONAL", occasionalDays)
                 contactRepository.updateFrequencySetting("RARE", rareDays)
 
-                contactRepository.updateContactsBasicFrequencies(frequentDays, occasionalDays, rareDays)
+                contactRepository.updateContactsStandardFrequencies(frequentDays, occasionalDays, rareDays)
 
                 // Since we successfully updated the database, we update our internal state as well.
                 _globalSettings.value = GlobalFrequencySettings(frequentDays, occasionalDays, rareDays)

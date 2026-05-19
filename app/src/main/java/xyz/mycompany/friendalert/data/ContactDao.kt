@@ -80,13 +80,13 @@ interface ContactDao {
     @Query("""
         UPDATE contacts
         SET contact_frequency = CASE
-            WHEN basic_frequency_mode = 'FREQUENT' THEN :frequentDays
-            WHEN basic_frequency_mode = 'OCCASIONAL' THEN :occasionalDays
-            WHEN basic_frequency_mode = 'RARE' THEN :rareDays
+            WHEN standard_frequency_mode = 'FREQUENT' THEN :frequentDays
+            WHEN standard_frequency_mode = 'OCCASIONAL' THEN :occasionalDays
+            WHEN standard_frequency_mode = 'RARE' THEN :rareDays
             ELSE contact_frequency
         END
     """)
-    suspend fun updateContactsBasicFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int)
+    suspend fun updateContactsStandardFrequencies(frequentDays: Int, occasionalDays: Int, rareDays: Int)
 
     @Query("DELETE FROM contacts WHERE contact_id = :contactId")
     fun deleteContactById(contactId: Long) // ADDED DELETE FUNCTION HERE

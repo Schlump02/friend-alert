@@ -5,7 +5,7 @@ package xyz.mycompany.friendalert.utils
  * This ensures consistency and prevents magic strings across the application.
  */
 object GlobalConfigKeys {
-    const val DEFAULT_BASIC_FREQUENCY_DAYS = 7
+    const val DEFAULT_STANDARD_FREQUENCY_DAYS = 7
     const val DEFAULT_OCCASIONAL_FREQUENCY_DAYS = 21
     const val DEFAULT_RARE_FREQUENCY_DAYS = 60
     // --- Database Keys (Used in settings table) ---

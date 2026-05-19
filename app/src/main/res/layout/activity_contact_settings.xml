@@ -86,14 +86,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Last Contact:"
+                    android:text="@string/last_contacted_label"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/datePicker"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:hint="Last Contact Date"
+                    android:hint=""
                     app:hintEnabled="false"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
-                    android:text="Contact Frequency:"
+                    android:text="@string/recurring_frequency_label"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
                 <com.google.android.material.button.MaterialButtonToggleGroup
@@ -128,27 +128,27 @@
                     app:singleSelection="true">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/basicMode"
+                        android:id="@+id/standardMode"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="130dp"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="Basic"
+                        android:text="@string/frequency_mode_standard"
                         android:textColor="@color/appBackgroundContrast"
                         app:cornerRadius="0dp" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/advancedMode"
+                        android:id="@+id/customMode"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="130dp"
                         android:layout_height="wrap_content"
-                        android:text="Advanced"
+                        android:text="@string/frequency_mode_custom"
                         android:textColor="@color/appBackgroundContrast"
                         app:cornerRadius="0dp" />
                 </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 <LinearLayout
-                    android:id="@+id/basicFrequencyLayout"
+                    android:id="@+id/standardFrequencyLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -159,13 +159,12 @@
                     app:layout_constraintTop_toBottomOf="@+id/toggleGroup">
 
                     <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/basicFrequencyChipGroup"
+                        android:id="@+id/standardFrequencyChipGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:textColor="@color/appBackgroundContrast"
-                        app:singleSelection="true"
-                        tools:visibility="visible">
+                        app:singleSelection="true">
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/frequentFriend"
@@ -174,7 +173,7 @@
                             android:layout_height="wrap_content"
                             android:checkable="true"
                             android:tag="7"
-                            android:text="Frequent"
+                            android:text="@string/standard_frequency_mode"
                             android:textColor="@color/appBackgroundContrast" />
 
                         <com.google.android.material.chip.Chip
@@ -184,7 +183,7 @@
                             android:layout_height="wrap_content"
                             android:checkable="true"
                             android:tag="21"
-                            android:text="Occasional"
+                            android:text="@string/occasional_frequency_mode"
                             android:textColor="@color/appBackgroundContrast" />
 
                         <com.google.android.material.chip.Chip
@@ -194,14 +193,14 @@
                             android:layout_height="wrap_content"
                             android:checkable="true"
                             android:tag="60"
-                            android:text="Rare"
+                            android:text="@string/rare_frequency_mode"
                             android:textColor="@color/appBackgroundContrast" />
 
                     </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/advancedFrequencyLayout"
+                    android:id="@+id/customFrequencyLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -210,13 +209,14 @@
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/toggleGroup">
+                    app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
+                    tools:visibility="visible">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/frequencyText"
                         android:layout_width="170dp"
                         android:layout_height="wrap_content"
-                        android:hint="Enter frequency"
+                        android:hint="@string/frequency_hint_no_unit"
                         app:hintEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -232,6 +232,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:textColor="@color/appBackgroundContrast"
                         app:singleSelection="true">
 
                         <com.google.android.material.chip.Chip

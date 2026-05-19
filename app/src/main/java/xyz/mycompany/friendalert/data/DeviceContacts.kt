@@ -46,7 +46,7 @@ class DeviceContacts(
             null,
             contact.photoUri?.toString(),
             contact.noteList().firstOrNull()?.note,
-            basicFrequencyMode = null
+            standardFrequencyMode = null
         )
     }
 
